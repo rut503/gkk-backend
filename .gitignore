@@ -1,0 +1,7 @@
+.env
+.vscode/
+venv/
+ignore.txt
+
+# macOS
+.DS_Store
