@@ -1,11 +1,16 @@
+# Commands 
+
+1. Be in a python virtual environment (gkk-backend)
+2. Be inside of app directory (../gkk-backend/app)
+3. Run `pipenv run uvicorn main:app --reload`
+
 # Backend Logic Map
 
 ## API Endpoints 
 
 #### Consumer
 - Find consumer 
-    - GET : `/consumer/{phoneNum}` 
-    - GET : `/consumer/{id}` 
+    - GET : `/consumer ? id="" & phone_num="" ` 
 - Create a new consumer (need ALL required data, rest are set to their default values)
     - POST : `/consumer/`
     ``` 
@@ -33,9 +38,7 @@
             city: "DeKalb",
             state: "IL",
             zip: "60115"
-        },
-        currentOrders: [ order_id ],
-        archivedOrders: [ order_id ]
+        }
     }
     ```
 - Delete consumer (move consumer to deactivated_user collection)
@@ -119,7 +122,7 @@
 - Delete producer (move producer to deactivated_user collection)
     - DELETE : `/producer/{id}` 
 
-#### Food
+#### Food Item
 - Find food item
     - GET : `/food_item/` 
         - query parameters

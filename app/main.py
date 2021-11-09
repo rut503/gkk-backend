@@ -1,11 +1,24 @@
 from fastapi import FastAPI
 from routes.grade_routes import grade_router
-
+from routes.consumer_routes import consumer_router
 
 app = FastAPI()
 
-app.include_router(grade_router)
+app.include_router(
+    consumer_router,
+    prefix="/consumer",
+    tags=["Consumer"]
+)
 
+
+
+
+
+app.include_router(
+    grade_router,
+    prefix="/grade",
+    tags=["Grade"]
+)
 
 # class Address(BaseModel):
 #     street: str
