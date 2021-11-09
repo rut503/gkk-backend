@@ -136,14 +136,15 @@
     - POST : `/food_item/`
     ``` 
     {
-        producerId: ObjectId,
-        dietPreferance: "Vegan", 
+        producer_id: ObjectId,
+        diet_preferance: "Vegan", 
         description: "This is a description of Poteto Bhajiyas",
         photo: PhotoBinaryData
         price: 6.99,
         name: "Potato Bhajiya",
-        portionSize: 12,
-        spicy: 2
+        portion_size: 12,
+        spicy: 2,
+        allergy: [ "nuts", "gluten" ]
     }
     ```
 - Update food item (only update data that's allowed to be changed by producer and only allow updates to the food item if it's not already in the producer menu and if no one has ordered it yet.)
@@ -153,8 +154,9 @@
         description: "This is a description of Poteto Bhajiyas",
         photo: PhotoBinaryData,
         price: 6.99,
-        portionSize: 12,
-        spicy: 2
+        portion_size: 12,
+        spicy: 2,
+        allergy: [ "nuts", "gluten" ]
     }
     ```
 - Delete food item
@@ -169,8 +171,8 @@
     - POST : `/active_order/`
     ``` 
     {
-        consumerId: ObjectId,
-        producerId: ObjectId,
+        consumer_id: ObjectId,
+        producer_id: ObjectId,
         items: [
             {
                 foodId: ObjectId,
@@ -183,7 +185,7 @@
         ],
         amount: 45.32,
         status: "pending",
-        mealTime: "breakfast",
+        meal_iime: "breakfast",
         pickUpDateTime: Date
     }
     ```
