@@ -34,7 +34,7 @@ from typing import List, Set, Optional
 # class producer_base(BaseModel):
 #     firstName: str 
 #     lastName: str
-#     phoneNum: int
+#     phoneNumber: int
 #     address: address
 
 # class producer_in(producer_base):
@@ -42,7 +42,7 @@ from typing import List, Set, Optional
     
 # class producer_out(producer_base):
 #     id: str
-#     average_consumer_rating: int
+#     rating: int
 #     active_orders: List[ str ] = []
 #     archived_orders: List[ str ] = []
 #     food: Optional[List] = None

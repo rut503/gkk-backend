@@ -126,11 +126,22 @@
 - Find food item
     - GET : `/food_item/` 
         - query parameters
-            - location_range
-            - dietPreferance
-            - price_range
-            - rating_range
-            - spicy
+            - time = [ "breakfast", "lunch", "dinner" ] (3 values, list)
+            - diet_preference = [ "Low Carb",      "High Protein", 
+                                  "Low/No Sodium", "Diabetic", 
+                                  "Gluten Free",   "Lactose Free", 
+                                  "Vegetarian",    "Non-Vegetarian", 
+                                  "Paleo",         "Vegan", 
+                                  "Pescetarian",   "Eggitarian", 
+                                  "Nut Free",      "Other" 
+                                ] (14 values, list)
+            - min_price = 4.99 ($, float)
+            - max_price = 14.99 ($, float)
+            - consumer_coordinates = _____
+            - distance_radius = 8 (miles, float)
+            - ratings = 4 (stars, int)
+            - spicy_level = 3 (pepers, int)
+            - chef_name = "ritu shah" (chef, str)
     - GET : `/food_item/{id}` 
 - Create a new food item (need ALL required data, rest are set to their default values)
     - POST : `/food_item/`

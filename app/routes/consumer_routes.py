@@ -11,13 +11,13 @@ consumer_router = APIRouter()
 
 # get data
 @consumer_router.get("/", response_model=consumer_out)
-async def get_consumer_by_phone_num(id: Optional[str] = None, phone_num: Optional[str] = None):
+async def get_consumer_by_phone_num(id: Optional[str] = None, phone_number: Optional[str] = None):
     if id:
         consumer = consumer_collection.find_one({ "_id": ObjectId(id) })
         consumer = consumer_serializer(consumer)
         return consumer
-    elif phone_num:
-        consumer = consumer_collection.find_one({ "phone_num": phone_num })
+    elif phone_number:
+        consumer = consumer_collection.find_one({ "phone_number": phone_number })
         consumer = consumer_serializer(consumer)
         return consumer
     else:
@@ -29,7 +29,7 @@ async def get_consumer_by_phone_num(id: Optional[str] = None, phone_num: Optiona
 async def post_consumer(consumer: consumer_in):
     # manually setting required fields to their default values at consumer creation
     consumer = consumer.dict()
-    consumer["average_consumer_rating"] = 0
+    consumer["rating"] = 0
     consumer["active_orders"] = []
     consumer["archived_orders"] = []
     consumer["date_created"] = datetime.today()
@@ -37,7 +37,7 @@ async def post_consumer(consumer: consumer_in):
 
     # inserting the consumer into DB
     inserted_consumer = consumer_collection.insert_one(consumer)
-    if inserted_consumer.acknowledged == False:
+    if not inserted_consumer.inserted_id:
         return "Error while inserting"
     
     # finding that inserted consumer 
@@ -80,8 +80,3 @@ async def delete_consumer(id: str):
         return "Error while deleting consumer"
     
     return "Successfully deleted!"
-
-# # EXPERIMENTS
-# @grade_router.get("/test/{id}")
-# async def experiment(id: str):
-#     return "hi" + str(id)

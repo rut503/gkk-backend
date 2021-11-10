@@ -1,20 +1,19 @@
+def food_item_serializer(food_item) -> dict:
+    return {
+        "id": str(food_item["_id"]),
+        "producer_id": str(food_item["producer_id"]),
+        "diet_preference": food_item["diet_preference"],
+        "description": food_item["description"],
+        "photo": food_item["photo"],
+        "price": food_item["price"],
+        "rating": food_item["rating"],
+        "name": food_item["name"],
+        "portion_size": food_item["portion_size"],
+        "spicy": food_item["spicy"],
+        "allergy": food_item["allergy"],
+        "date_created": food_item["date_created"],
+        "date_updated": food_item["date_updated"]
+    }
 
-
-
-
-# def consumer_serializer(consumer) -> dict:
-#     return {
-#         "id": str(consumer["_id"]),
-#         "first_name": consumer["first_name"],
-#         "last_name": consumer["last_name"],
-#         "phone_num": consumer["phone_num"],
-#         "address": address_serializer(consumer["address"]),
-#         "average_consumer_rating": consumer["average_consumer_rating"],
-#         "active_orders": [ str(id) for id in consumer["active_orders"] ],
-#         "archived_orders": [ str(id) for id in consumer["archived_orders"] ],
-#         "date_created": consumer["date_created"],
-#         "date_updated": consumer["date_updated"]
-#     }
-
-# def consumers_serializer(consumers) -> list:
-#     return [ consumer_serializer(consumer) for consumer in consumers ]
+def food_items_serializer(food_items) -> list:
+    return [ food_item_serializer(food_item) for food_item in food_items ]

@@ -12,7 +12,7 @@ class address(BaseModel):
 class consumer_base(BaseModel):
     first_name: str
     last_name: str
-    phone_num: str
+    phone_number: str
     address: address
     
 class consumer_in(consumer_base):
@@ -20,7 +20,7 @@ class consumer_in(consumer_base):
 
 class consumer_out(consumer_base):
     id: str
-    average_consumer_rating: int
+    rating: float
     active_orders: List[ str ] = []
     archived_orders: List[ str ] = []
     date_created: datetime
