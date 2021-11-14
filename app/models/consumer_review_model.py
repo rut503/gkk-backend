@@ -8,3 +8,7 @@ class consumer_review_base(BaseModel):
 
 class consumer_review_in(consumer_review_base):
     pass
+
+class consumer_review_out(consumer_review_base):
+    test: Optional[str] = None
+    pass
