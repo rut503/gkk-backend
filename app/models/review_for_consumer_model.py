@@ -9,12 +9,12 @@ class review_for_consumer_post(BaseModel):
     rating: int
     description: str
 
-class review_for_consumer_update(BaseModel):
+class review_for_consumer_put(BaseModel):
     rating: Optional[str] = None
     title: Optional[str] = None
     description: Optional[str] = None
 
-class review_for_consumer_return(BaseModel):
+class review_for_consumer_response(BaseModel):
     id: str
     consumer_id: str
     producer_id: str
