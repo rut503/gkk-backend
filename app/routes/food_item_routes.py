@@ -8,7 +8,7 @@ from datetime import datetime
 
 from pymongo.message import update
 
-from config.datababse import food_item_collection
+from config.database import food_item_collection
 from models.food_item_model import food_item_in, food_item_out
 from schemas.food_item_schema import food_item_serializer, food_items_serializer
 

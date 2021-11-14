@@ -1,1 +1,1 @@
-from config.datababse import review_for_consumer_collection
+from config.database import review_for_consumer_collection

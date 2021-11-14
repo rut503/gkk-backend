@@ -3,7 +3,7 @@ from fastapi import APIRouter
 from pymongo import ReturnDocument
 from bson import ObjectId
 from datetime import datetime
-from config.datababse import consumer_collection, deactivated_consumer_collection
+from config.database import consumer_collection, deactivated_consumer_collection
 from models.consumer_model import consumer_in, consumer_out
 from schemas.consumer_schema import consumer_serializer, consumers_serializer
 
