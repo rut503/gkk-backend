@@ -1,2 +1,2 @@
-from models.consumer_review_model import consumer_review_in
-from models.consumer_review_model import consumer_review_out
+from models.review_for_consumer_model import review_for_consumer_in
+from models.review_for_consumer_model import review_for_consumer_out

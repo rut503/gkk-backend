@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from routes.consumer_routes import consumer_router
 from routes.food_item_routes import food_item_router
-from routes.consumer_review_routes import consumer_review_router
+from routes.review_for_consumer_routes import review_for_consumer_router
 
 app = FastAPI()
 
@@ -23,6 +23,6 @@ app.include_router(
 )
 
 app.include_router(
-    consumer_review_router,
-    prefix="/consumer_review"
+    review_for_consumer_router,
+    prefix="/review_for_consumer"
 )

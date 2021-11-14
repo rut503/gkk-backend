@@ -1,14 +1,14 @@
 from pydantic import BaseModel
 from typing import Optional
 
-class consumer_review_base(BaseModel):
+class review_for_consumer_base(BaseModel):
     rating: Optional[str] = None
     title: Optional[str] = None
     description: Optional[str] = None
 
-class consumer_review_in(consumer_review_base):
+class review_for_consumer_in(review_for_consumer_base):
     pass
 
-class consumer_review_out(consumer_review_base):
+class review_for_consumer_out(review_for_consumer_base):
     test: Optional[str] = None
     pass
