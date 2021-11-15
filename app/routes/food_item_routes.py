@@ -8,14 +8,14 @@ from datetime import datetime
 
 from pymongo.message import update
 
-from config.datababse import food_item_collection
-from models.food_item_model import food_item_in, food_item_out
+from config.database import food_item_collection
+from models.food_item_model import food_item_post, food_item_put, food_item_response
 from schemas.food_item_schema import food_item_serializer, food_items_serializer
 
 food_item_router = APIRouter()
 
 # get data
-@food_item_router.get("/", response_model=food_item_out)
+@food_item_router.get("/", response_model=food_item_response)
 async def get_food_item(id: str):
     food_item = food_item_collection.find_one({ "_id": ObjectId(id) })
     food_item = food_item_serializer(food_item)
@@ -39,7 +39,7 @@ async def get_food_item(id: str):
 - spicy_level = 3 (pepers, int)
 - chef_name = "ritu shah" (chef, str)
 """
-@food_item_router.get("/filter/", response_model=List[food_item_out])
+@food_item_router.get("/filter/", response_model=List[food_item_response])
 async def get_food_item_by_filters( 
                                   ):
     return []
@@ -58,8 +58,8 @@ async def get_food_item_by_filters(
 
 
 # post data
-@food_item_router.post("/", response_model=food_item_out)
-async def post_food_item(food_item: food_item_in):
+@food_item_router.post("/", response_model=food_item_response)
+async def post_food_item(food_item: food_item_post):
     # manually setting required fields to their default values at food_item creation
     food_item = food_item.dict()
     food_item["rating"] = 0
@@ -80,8 +80,8 @@ async def post_food_item(food_item: food_item_in):
 
 
 # put data
-@food_item_router.put("/{id}", response_model=food_item_out)
-async def put_food_item(id: str, food_item: food_item_in):
+@food_item_router.put("/{id}", response_model=food_item_response)
+async def put_food_item(id: str, food_item: food_item_put):
     # manually setting date_updated field to current datetime and rating to 0 since 
     #   we will remove all the ratings from this food_item if it's updated
     food_item = food_item.dict()
