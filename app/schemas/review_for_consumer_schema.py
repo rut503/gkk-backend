@@ -6,5 +6,6 @@ def review_for_consumer_serializer(review_document) -> dict:
         "rating": review_document["rating"],
         "title": review_document["title"],
         "description": review_document["description"],
-        "date_created": review_document["date_created"]
+        "date_created": review_document["date_created"],
+        "date_updated": review_document["date_updated"]
     }

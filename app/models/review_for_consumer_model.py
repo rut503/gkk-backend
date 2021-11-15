@@ -22,4 +22,4 @@ class review_for_consumer_response(BaseModel):
     rating: int
     description: str
     date_created: datetime
-    #date_updated: datetime
+    date_updated: datetime

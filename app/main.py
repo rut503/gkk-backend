@@ -24,5 +24,6 @@ app.include_router(
 
 app.include_router(
     review_for_consumer_router,
-    prefix="/review_for_consumer"
+    prefix="/review_for_consumer",
+    tags=["Review for Consumer"]
 )
