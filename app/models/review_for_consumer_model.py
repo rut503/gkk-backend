@@ -10,7 +10,7 @@ class review_for_consumer_post(BaseModel):
     description: str
 
 class review_for_consumer_put(BaseModel):
-    rating: Optional[str] = None
+    rating: Optional[int] = None
     title: Optional[str] = None
     description: Optional[str] = None
 
