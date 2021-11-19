@@ -57,3 +57,23 @@ async def get_review_for_consumer_by_id(id: str):
 
     return serialized_review_document
 
+# Post a review
+@review_for_consumer_router.post("/", response_model=review_for_consumer_response)
+async def post_review_for_consumer(review: review_for_consumer_post):
+    review_to_insert = {"date_created" : datetime.today(), "date_updated" : datetime.today(), **review.dict()}
+    result = review_for_consumer_collection.insert_one(review_to_insert)
+
+    if not result.inserted_id:
+        raise HTTPException(status_code=400, detail="Error while inserting")
+
+    # This does an extra query for every insert
+    # inserted_review = review_for_consumer_collection.find_one({"_id": result.inserted_id})
+    # inserted_review = review_for_consumer_serializer(inserted_review)
+
+    #print(type(result.inserted_id.__str__()))
+    #return inserted_review
+
+    # This way doesn't use a query
+    review_to_insert["id"] = result.inserted_id.__str__()
+
+    return review_to_insert
