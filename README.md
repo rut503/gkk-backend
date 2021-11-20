@@ -11,7 +11,7 @@
 #### Consumer
 
 - Find consumer
-    - `GET : /consumer/id/{id}`
+    - `GET : /consumer/{id}`
     - `GET : /consumer/phone_number/{phone_number}`
 
 - Create new consumer
@@ -31,7 +31,7 @@
     ```
 
 - Update consumer
-    - `PUT : /consumer/id/{id}`
+    - `PUT : /consumer/{id}`
     ```
         {
             first_name: "Juan",
@@ -47,14 +47,14 @@
     ```
 
 - Delete consumer
-    - `DELETE : /consumer/id/{id}`
+    - `DELETE : /consumer/{id}`
 
 #### Producer
 
 - Find producer
-    - `GET : /producer/id/{id}`
+    - `GET : /producer/{id}`
     - `GET : /producer/phone_number/{phone_number}`
-    - `GET : /producer/filter/?` 
+    - `GET : /producer/filter ? _______` 
         - query parameters
             - consumer_coordinates = ??????
             - distance_radius = 8 (miles, float)
@@ -76,7 +76,7 @@
     ```
 
 - Update producer
-    - `PUT : /producer/id/{id}`
+    - `PUT : /producer/{id}`
     ```
         {
             first_name: "Juan",
@@ -129,13 +129,13 @@
     ```
 
 - Delete producer
-    - `DELETE : /producer/id/{id}`
+    - `DELETE : /producer/{id}`
 
 #### Food Item
 
 - Find food item
-    - `GET : /food_item/id/{id}`
-    - `GET : /food_item/filter/?`
+    - `GET : /food_item/{id}`
+    - `GET : /food_item/filter ? ______ `
         - Query Parameters
         ```
             time = [ "breakfast", "lunch", "dinner" ] (3 values, list)
@@ -173,7 +173,7 @@
     ```
 
 - Update food item
-    - `PUT : /food_item/id/{id}`
+    - `PUT : /food_item/{id}`
     ```
         {
             diet_preferance: "Vegan",
@@ -188,14 +188,13 @@
     ```
 
 - Delete food item
-    - `DELETE : /food_item/id/{id}`
+    - `DELETE : /food_item/{id}`
 
 #### Active Order
 
 - Find active order
-    - `GET : /active_order/id/{id}`
-    - `GET : /active_order/consumer_id/{consumer_id}`
-    - `GET : /active_order/producer_id/{producer_id}`
+    - `GET : /active_order/{id}`
+    - `GET : /active_order ? consumer_id="" & producer_id="" `
 
 - Create new active order
     - `POST : /active_order/`
@@ -242,7 +241,7 @@
     ```
 
 - Update food item
-    - `PUT : /active_order/id/{id}`
+    - `PUT : /active_order/{id}`
     ```
         {
             status: "accepted",
@@ -252,16 +251,14 @@
 #### Archived Order
 
 - Find archived order
-    - `GET : /archived_order/id/{id}`
-    - `GET : /archived_order/consumer_id/{consumer_id}`
-    - `GET : /archived_order/producer_id/{producer_id}`
+    - `GET : /archived_order/{id}`
+    - `GET : /archived_order ? consumer_id="" & producer_id="" `
 
 #### Review For Consumer
 
 - Find review for consumer
-    - `GET : /review_for_consumer/id/{id}`
-    - `GET : /review_for_consumer/consumer_id/{consumer_id}`
-    - `GET : /review_for_consumer/producer_id/{producer_id}`
+    - `GET : /review_for_consumer/{id}`
+    - `GET : /review_for_consumer ? consumer_id="" & producer_id="" `
 
 - Create new review for consumer
     - `POST : /review_for_consumer/`
@@ -276,7 +273,7 @@
     ```
 
 - Update review for consumer
-    - `PUT : /review_for_consumer/id/{id}`
+    - `PUT : /review_for_consumer/{id}`
     ```
         {
             rating: 4,
@@ -286,14 +283,13 @@
     ```
 
 - Delete review for consumer
-  - `DELETE : /review_for_consumer/id/{id}`
+  - `DELETE : /review_for_consumer/{id}`
 
 #### Review For Producer
 
 - Find review for producer
-    - `GET : /review_for_producer/id/{id}`
-    - `GET : /review_for_producer/consumer_id/{consumer_id}`
-    - `GET : /review_for_producer/producer_id/{producer_id}`
+    - `GET : /review_for_producer/{id}`
+    - `GET : /review_for_producer ? consumer_id="" & producer_id="" `
 
 - Create new review for producer
     - `POST : /review_for_producer/`
@@ -308,7 +304,7 @@
     ```
 
 - Update review for producer
-    - `PUT : /review_for_producer/id/{id}`
+    - `PUT : /review_for_producer/{id}`
     ```
         {
             rating: 4,
@@ -318,14 +314,13 @@
     ```
 
 - Delete review for producer
-  - `DELETE : /review_for_producer/id/{id}`
+  - `DELETE : /review_for_producer/{id}`
 
 #### Review For Food
 
 - Find review for food
-    - `GET : /review_for_food/id/{id}`
-    - `GET : /review_for_food/consumer_id/{consumer_id}`
-    - `GET : /review_for_food/food_item_id/{food_item_id}`
+    - `GET : /review_for_food/{id}`
+    - `GET : /review_for_food ? consumer_id="" & food_item_id="" `
 
 - Create new review for food
     - POST : `/review_for_food/`
@@ -340,7 +335,7 @@
     ```
 
 - Update review for food
-    - `PUT : /review_for_food/id/{id}`
+    - `PUT : /review_for_food/{id}`
     ```
         {
             rating: 4,
@@ -350,6 +345,6 @@
     ```
 
 - Delete review for food
-    - `DELETE : /review_for_food/id/{id}`
+    - `DELETE : /review_for_food/{id}`
 
 #### Special Routes
