@@ -68,32 +68,31 @@ async def post_review_for_consumer(review: review_for_consumer_post):
     if not result.inserted_id:
         raise HTTPException(status_code=400, detail="Error while inserting")
 
-    # Retrieving added document
+    # Retrieving newly added document
     inserted_review = review_for_consumer_collection.find_one({"_id": result.inserted_id})
     inserted_review = review_for_consumer_serializer(inserted_review)
 
     return inserted_review
 
-#@review_for_consumer_router.put("/id/{id}", respose_model=review_for_consumer_response)
+#@review_for_consumer_router.put("/id/{id}", response_model=review_for_consumer_response)
 @review_for_consumer_router.put("/id/{id}")
 async def update_review_for_consumer(review: review_for_consumer_put, id: str):
     review_to_update_dict = review_for_consumer_serializer(review_for_consumer_collection.find_one({"_id": ObjectId(id)}))
-    review_to_update_dict ['date_updated'] = datetime.today()
+    # Updating date_updated field
+    review_to_update_dict ['date_updated'] = datetime.utcnow()
     review_identifier = review_to_update_dict['id']
 
-    fields_to_change_put_model = review_for_consumer_put(**review_to_update_dict)
-    updated_data_dict = review.dict(exclude_unset=True)
-    updated_put_model = fields_to_change_put_model.copy(update=updated_data_dict)
-    # review_to_update['rating'] = review_for_consumer_put['rating']
-    # review_to_update['title'] = review_for_consumer_put['title']
-    # review_to_update['description'] = review_for_consumer_put['description']  
+    fields_to_change_model = review_for_consumer_put(**review_to_update_dict)
+    updated_fields_dict = review.dict(exclude_unset=True)
+    updated_model = fields_to_change_model.copy(update=updated_fields_dict)
 
-    review_for_consumer_collection.update_one({"_id": ObjectId(review_identifier)}, {'$set': updated_put_model.dict()})
-    #update_data = review.dict(exclude_unset=True)
-    #update_item = reivew_to_update.copy(update=update_data)
+    result = review_for_consumer_collection.update_one({"_id": ObjectId(review_identifier)}, {'$set': updated_model.dict()})
 
-    #print(review_to_update)
+    if result.modified_count != 1:
+        raise HTTPException(status_code=400, detail="Error while updating")
 
-    #updated_item['id'] = review_identifier
-    return updated_put_model
+    updated_review = review_for_consumer_collection.find_one({"_id": ObjectId(review_identifier)})
+    updated_review = review_for_consumer_serializer(updated_review)
+
+    return updated_review
 
