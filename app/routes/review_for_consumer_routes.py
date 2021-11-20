@@ -10,10 +10,6 @@ from datetime import datetime
 
 review_for_consumer_router = APIRouter()
 
-dummyData = {
-    "1": {"rating": "5", "title": "Test", "description": "Description"}
-}
-
 @review_for_consumer_router.get("/by_user", response_model=List[review_for_consumer_response])
 async def get_all_review_for_consumer_by_user(consumer_id: Optional[str] = Query(None, max_length=24),
                                               producer_id: Optional[str] = Query(None, max_length=24)) -> list:
@@ -74,8 +70,7 @@ async def post_review_for_consumer(review: review_for_consumer_post):
 
     return inserted_review
 
-#@review_for_consumer_router.put("/id/{id}", response_model=review_for_consumer_response)
-@review_for_consumer_router.put("/id/{id}")
+@review_for_consumer_router.put("/id/{id}", response_model=review_for_consumer_response)
 async def update_review_for_consumer(review: review_for_consumer_put, id: str):
     review_to_update_dict = review_for_consumer_serializer(review_for_consumer_collection.find_one({"_id": ObjectId(id)}))
     # Updating date_updated field
@@ -88,11 +83,17 @@ async def update_review_for_consumer(review: review_for_consumer_put, id: str):
 
     result = review_for_consumer_collection.update_one({"_id": ObjectId(review_identifier)}, {'$set': updated_model.dict()})
 
-    if result.modified_count != 1:
+    if result.modified_count is not 1:
         raise HTTPException(status_code=400, detail="Error while updating")
 
     updated_review = review_for_consumer_collection.find_one({"_id": ObjectId(review_identifier)})
     updated_review = review_for_consumer_serializer(updated_review)
 
     return updated_review
+
+@review_for_consumer_router.delete("/id/{id}", status_code=200)
+async def delete_review_for_consumer(id: str):
+    review_for_consumer_collection.delete_one({"_id": ObjectId(id)})
+
+
 
