@@ -1,26 +1,32 @@
 from pydantic import BaseModel
-from datetime import datetime
+from datetime import date, datetime
 from typing import List, Set, Optional
 
+class address(BaseModel):
+    street: str
+    city: str
+    state: str
+    zip_code: str
 
+class filter_fields(BaseModel):
+    address: Optional[bool] = True
+    food_items: Optional[bool] = True
+    active_orders: Optional[bool] = True
+    menu: Optional[bool] = True
 
+class producer_response(BaseModel):
+    id: str
+    first_name: str
+    last_name: str
+    phone_number: str
+    address: Optional[address] = None
+    food_items: Optional[list] = None
+    rating: float
+    active_orders: Optional[list] = None
+    menu: Optional[dict] = None
+    date_created: datetime
+    date_updated: datetime
 
-
-
-
-
-
-
-
-
-
-
-
-# class address(BaseModel):
-#     street: str
-#     city: str
-#     state: str
-#     zip_code: str
 
 # class menu(BaseModel):
 #     sunday: Optional[List[int]] = None
