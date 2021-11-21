@@ -18,7 +18,7 @@ async def get_producer_by_id(id: str,
                              address: bool = True,
                              food_items: bool = True,
                              rating: bool = True,
-                             active_order: bool = True,
+                             active_orders: bool = True,
                              menu: bool = True,
                              date_created: bool = True,
                              date_updated: bool = True):
@@ -33,7 +33,7 @@ async def get_producer_by_id(id: str,
     field_to_filter.__setattr__('address', address)
     field_to_filter.__setattr__('food_items', food_items)
     field_to_filter.__setattr__('rating', rating)
-    field_to_filter.__setattr__('active_orders', active_order)
+    field_to_filter.__setattr__('active_orders', active_orders)
     field_to_filter.__setattr__('menu', menu)
     field_to_filter.__setattr__('date_created', date_created)
     field_to_filter.__setattr__('date_updated', date_updated)
@@ -41,16 +41,11 @@ async def get_producer_by_id(id: str,
     # Creates a field_to_filter model 
     fields_to_filer_dict = field_to_filter.dict(exclude_defaults=True) 
 
-    print(fields_to_filer_dict)
-
     # Checks if any query parameters were sent in
     if len(fields_to_filer_dict) != 0: 
         producer_dict = producer_collection.find_one({"_id": ObjectId(id)}, fields_to_filer_dict)
         if producer_dict is None:
             raise HTTPException(status_code=404, detail="Consumer not found with id " + id)
-
-        # producer["id"] = str(producer["_id"])
-        # del producer["_id"]
 
         return producer_serializer(producer_dict)
 
