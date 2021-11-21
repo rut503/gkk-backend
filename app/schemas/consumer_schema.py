@@ -15,7 +15,6 @@ def consumer_serializer(consumer) -> dict:
         "address": address_serializer(consumer["address"]),
         "rating": consumer["rating"],
         "active_orders": [ str(id) for id in consumer["active_orders"] ],
-        "archived_orders": [ str(id) for id in consumer["archived_orders"] ],
         "date_created": consumer["date_created"],
         "date_updated": consumer["date_updated"]
     }
