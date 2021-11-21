@@ -9,23 +9,29 @@ class address(BaseModel):
     zip_code: str
 
 class filter_fields(BaseModel):
+    first_name: Optional[bool] = True
+    last_name: Optional[bool] = True
+    phone_number: Optional[bool] = True
     address: Optional[bool] = True
     food_items: Optional[bool] = True
+    rating: Optional[bool] = True
     active_orders: Optional[bool] = True
     menu: Optional[bool] = True
+    date_created: Optional[bool] = True
+    date_updated: Optional[bool] = True
 
 class producer_response(BaseModel):
     id: str
-    first_name: str
-    last_name: str
-    phone_number: str
+    first_name: Optional[str] = None 
+    last_name: Optional[str] = None
+    phone_number: Optional[str] = None
     address: Optional[address] = None
     food_items: Optional[list] = None
-    rating: float
+    rating: Optional[float] = None
     active_orders: Optional[list] = None
     menu: Optional[dict] = None
-    date_created: datetime
-    date_updated: datetime
+    date_created: Optional[datetime] = None
+    date_updated: Optional[datetime] = None
 
 
 # class menu(BaseModel):
