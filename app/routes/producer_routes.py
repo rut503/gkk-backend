@@ -1,7 +1,9 @@
+from logging import raiseExceptions
 from typing import Optional
 from fastapi import APIRouter, HTTPException
 from bson import ObjectId
 from fastapi.params import Query, Path
+from pymongo.message import insert
 from models.producer_model import *
 from config.database import producer_collection, deactivated_producer_collection
 from schemas.producer_schema import producer_serializer
@@ -99,6 +101,26 @@ async def get_producer_by_phone_number(phone_number_param: str = Path(..., min_l
         
         return producer_serializer(producer_dict)
 
-# @producer_router.post("/", response_model=producer_response)
-# async def post_producer(producer: producer_post):
-#     producer_to_insert = producer_collection.insert_one({})
+@producer_router.post("/", response_model=producer_response)
+async def post_producer(producer: producer_post):
+    # Checking if the phone number is already associated with a producer
+    producer_document = producer_collection.find_one({"phone_number": producer.dict()["phone_number"]})
+    if producer_document is not None:
+        raise HTTPException(status_code=422 , detail="Proudcer already exists with phone number, " + producer_document["phone_number"])
+
+    producer_dict = producer.dict()
+    producer_dict["food_items"] = []
+    producer_dict["rating"] = 0
+    producer_dict["active_order"] = []
+    producer_dict["menu"] = {}
+    producer_dict["date_created"] = datetime.utcnow()
+    producer_dict["date_updated"] = datetime.utcnow()    
+
+    insert_result = producer_collection.insert_one(producer_dict)
+    if not insert_result.inserted_id:
+        raise HTTPException(status_code=400, detail="Error while inserting")
+    
+    inserted_producer = producer_collection.find_one({"_id": insert_result.inserted_id})
+    inserted_producer = producer_serializer(inserted_producer)
+
+    return inserted_producer
