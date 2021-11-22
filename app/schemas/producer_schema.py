@@ -24,15 +24,17 @@ def producer_serializer(producer_document) -> dict:
         for i in range(len_of_food_list):
             producer_document["food_items"][i] = str(producer_document["food_items"][i])
 
+    # Serizalizing active_orders id's 
     if "active_orders" in list_of_keys:
         len_of_active_orders_list = len(producer_document["active_orders"])
         for i in range(len_of_active_orders_list):
             producer_document["active_orders"][i] = str(producer_document["active_orders"][i])
     
-    #if "menu" in list_of_keys:
-    for day_of_week in producer_document["menu"]:
-        for time_of_day in producer_document["menu"][day_of_week]:
-            for i in range(len(producer_document["menu"][day_of_week][time_of_day])):
-                producer_document["menu"][day_of_week][time_of_day][i] = str(producer_document["menu"][day_of_week][time_of_day][i])
+    # Serizalizing the food id's of the menu
+    if "menu" in list_of_keys:
+        for day_of_week in producer_document["menu"]:
+            for time_of_day in producer_document["menu"][day_of_week]:
+                for i in range(len(producer_document["menu"][day_of_week][time_of_day])):
+                    producer_document["menu"][day_of_week][time_of_day][i] = str(producer_document["menu"][day_of_week][time_of_day][i])
 
     return producer_document
