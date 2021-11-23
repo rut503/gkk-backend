@@ -110,9 +110,9 @@ async def post_producer(producer: producer_post):
 
     producer_dict = producer.dict()
     producer_dict["food_items"] = []
-    producer_dict["rating"] = 0
-    producer_dict["active_order"] = []
-    producer_dict["menu"] = {}
+    producer_dict["rating"] = float(0)
+    producer_dict["active_orders"] = []
+    producer_dict["menu"] = menuDict
     producer_dict["date_created"] = datetime.utcnow()
     producer_dict["date_updated"] = datetime.utcnow()    
 
@@ -124,3 +124,15 @@ async def post_producer(producer: producer_post):
     inserted_producer = producer_serializer(inserted_producer)
 
     return inserted_producer
+
+mealDict = {'breakfast': [],
+            'lunch': [],
+            'dinner': []}
+
+menuDict = {'sunday': mealDict,
+            'monday': mealDict,
+            'tuesday': mealDict,
+            'wednesday': mealDict,
+            'thursday': mealDict,
+            'friday': mealDict,
+            'saturday': mealDict}
