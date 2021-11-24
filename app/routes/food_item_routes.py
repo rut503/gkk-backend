@@ -1,12 +1,9 @@
-from os import device_encoding
 from typing import List, Optional
-from fastapi import APIRouter
-from pydantic.utils import Obj
+from fastapi import APIRouter, HTTPException, status
+from fastapi.params import Path, Query
 from pymongo import ReturnDocument
 from bson import ObjectId
 from datetime import datetime
-
-from pymongo.message import update
 
 from config.database import food_item_collection
 from models.food_item_model import food_item_post, food_item_put, food_item_response
@@ -14,47 +11,55 @@ from schemas.food_item_schema import food_item_serializer, food_items_serializer
 
 food_item_router = APIRouter()
 
+'''
+- path param
+- query param
+- HTTP Exceptions
+- HTTP Codes
+- Param Validations
+'''
+
 # get data
-@food_item_router.get("/", response_model=food_item_response)
-async def get_food_item(id: str):
+@food_item_router.get("/{id}", response_model=food_item_response)
+async def get_food_item( id: str = Path(..., min_length=24, max_length=24) ):
+    # checking if passed in id is valid ObjectId type
+    if not ObjectId.is_valid(id):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail=id + " is not a valid ObjectId type!"
+        )
+    
+    # finding food_item that matches passed in id
     food_item = food_item_collection.find_one({ "_id": ObjectId(id) })
+    if food_item is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="Consumer not found with id " + id
+        )
+    
     food_item = food_item_serializer(food_item)
     return food_item
 
-"""
-- time = [ "breakfast", "lunch", "dinner" ] (3 values, list)
-- diet_preference = [ "Low Carb",      "High Protein", 
-                        "Low/No Sodium", "Diabetic", 
-                        "Gluten Free",   "Lactose Free", 
-                        "Vegetarian",    "Non-Vegetarian", 
-                        "Paleo",         "Vegan", 
-                        "Pescetarian",   "Eggitarian", 
-                        "Nut Free",      "Other" 
-                    ] (14 values, list)
-- min_price = 4.99 ($, float)
-- max_price = 14.99 ($, float)
-- consumer_coordinates = _____
-- distance_radius = 8 (miles, float)
-- ratings = 4 (stars, int)
-- spicy_level = 3 (pepers, int)
-- chef_name = "ritu shah" (chef, str)
-"""
-@food_item_router.get("/filter/", response_model=List[food_item_response])
-async def get_food_item_by_filters( 
-                                  ):
-    return []
-# @consumer_router.get("/", response_model=consumer_out)
-# async def get_consumer_by_phone_num(id: Optional[str] = None, phone_num: Optional[str] = None):
-#     if id:
-#         consumer = consumer_collection.find_one({ "_id": ObjectId(id) })
-#         consumer = consumer_serializer(consumer)
-#         return consumer
-#     elif phone_num:
-#         consumer = consumer_collection.find_one({ "phone_num": phone_num })
-#         consumer = consumer_serializer(consumer)
-#         return consumer
-#     else:
-#         return "error bro!"
+
+@food_item_router.get("", response_model=List[food_item_response])
+async def get_food_item_by_producer_id( producer_id: str = Query(..., min_length=24, max_length=24) ):
+    # checking if passed in producer_id is valid ObjectId type
+    if not ObjectId.is_valid(producer_id):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail=producer_id + " is not a valid ObjectId type!"
+        )
+    
+    # finding all food_items that matches passed in producer_id
+    food_items = food_item_collection.find({ "producer_id": ObjectId(producer_id) })
+    if food_items.count() == 0:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="Food Items not found with producer_id " + producer_id
+        )
+    
+    food_items = food_items_serializer(food_items)
+    return food_items
 
 
 # post data

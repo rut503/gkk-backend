@@ -1,6 +1,6 @@
 from pydantic import BaseModel, HttpUrl, Field
 from datetime import datetime
-from typing import List, Optional
+from typing import List
 from enum import Enum
 
 class diet_preference(str, Enum):
@@ -19,38 +19,25 @@ class diet_preference(str, Enum):
     nut_free = "Nut Free"
     other = "Other"
 
-class food_item_post(BaseModel):
+class food_item_base(BaseModel):
+    diet_preference: List[diet_preference]
+    description: str = Field(..., min_length=1, max_length=1500)
+    price: float = Field(..., ge=0.01, le=999.99)
+    name: str = Field(..., min_length=1, max_length=200)
+    portion_size: float = Field(..., ge=0.01, le=999.99)
+    spicy: int = Field(..., ge=0, le=3)
+    allergy: List[str] = Field(..., max_items=100)
+
+class food_item_post(food_item_base):
     producer_id: str = Field(..., min_length=24, max_length=24)
-    diet_preference: diet_preference
-    description: str = Field(..., min_length=1, max_length=1500)
-    photo: HttpUrl
-    price: float = Field(..., ge=0.01, le=999.99)
-    name: str = Field(..., min_length=1, max_length=200)
-    portion_size: float = Field(..., ge=0.01, le=999.99)
-    spicy: int = Field(..., ge=0, le=3)
-    allergy: List[str] = Field(..., max_items=100)
 
-class food_item_put(BaseModel):
-    diet_preference: diet_preference
-    description: str = Field(..., min_length=1, max_length=1500)
-    photo: HttpUrl
-    price: float = Field(..., ge=0.01, le=999.99)
-    name: str = Field(..., min_length=1, max_length=200)
-    portion_size: float = Field(..., ge=0.01, le=999.99)
-    spicy: int = Field(..., ge=0, le=3)
-    allergy: List[str] = Field(..., max_items=100)
+class food_item_put(food_item_base):
+    pass
 
-class food_item_response(BaseModel):
-    id: str
-    producer_id: str
-    diet_preference: diet_preference
-    description: str
+class food_item_response(food_item_base):
+    id: str = Field(..., min_length=24, max_length=24)
+    producer_id: str = Field(..., min_length=24, max_length=24)
     photo: HttpUrl
-    price: float
-    rating: float
-    name: str
-    portion_size: float
-    spicy: int
-    allergy: List[str]
+    rating: float = Field(..., ge=0.00, le=5.00)
     date_updated: datetime
     date_created: datetime
