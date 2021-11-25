@@ -3,7 +3,8 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException
 from bson import ObjectId
 from fastapi.params import Query, Path
-from pymongo.message import insert
+from pymongo import response
+from pymongo.message import insert, update
 from models.producer_model import *
 from config.database import producer_collection, deactivated_producer_collection
 from schemas.producer_schema import producer_serializer
@@ -108,6 +109,7 @@ async def post_producer(producer: producer_post):
     if producer_document is not None:
         raise HTTPException(status_code=422 , detail="Proudcer already exists with phone number, " + producer_document["phone_number"])
 
+    # Creating dict for producer to be inserted
     producer_dict = producer.dict()
     producer_dict["food_items"] = []
     producer_dict["rating"] = float(0)
@@ -120,11 +122,57 @@ async def post_producer(producer: producer_post):
     if not insert_result.inserted_id:
         raise HTTPException(status_code=400, detail="Error while inserting")
     
+    # Returning new producer
     inserted_producer = producer_collection.find_one({"_id": insert_result.inserted_id})
     inserted_producer = producer_serializer(inserted_producer)
 
     return inserted_producer
+    
+@producer_router.put("/{id}/address", response_model=producer_response, response_model_exclude=["rating", "active_orders","food_items", "menu", "date_created", "date_updated"])
+async def put_producer_address(id: str, producer: producer_post):
+    # Searching for producer document with the id passed in
+    producer_document = producer_collection.find_one({"_id": ObjectId(id)})
+    
+    if producer_document is None:
+        raise HTTPException(status_code=404, detail="Producer not found with id of " + id)
 
+    # Updating
+    producer = producer.dict()
+    producer["date_updated"] = datetime.utcnow()
+
+    result = producer_collection.update_one({"_id": ObjectId(id)}, {'$set': producer})
+
+    if result.modified_count is not 1:
+        raise HTTPException(status_code=400, detail="Error while updating")
+
+    updated_producer = producer_collection.find_one({"_id": ObjectId(id)})
+
+    return producer_serializer(updated_producer)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+####################################################################################################################################################################################
+# 
+#                                                                                       Helper Dicts for menu subdocument
+#
+####################################################################################################################################################################################
 mealDict = {'breakfast': [],
             'lunch': [],
             'dinner': []}
@@ -136,3 +184,4 @@ menuDict = {'sunday': mealDict,
             'thursday': mealDict,
             'friday': mealDict,
             'saturday': mealDict}
+

@@ -4,7 +4,7 @@ from typing import List, Set, Optional
 
 from pydantic.fields import Field
 
-class address_out(BaseModel):
+class address_optional(BaseModel):
     street: Optional[str] = None
     city: Optional[str] = None
     state: Optional[str] = None
@@ -33,7 +33,7 @@ class producer_response(BaseModel):
     first_name: Optional[str] = None 
     last_name: Optional[str] = None
     phone_number: Optional[str] = None
-    address: Optional[address_out]
+    address: Optional[address_optional]
     food_items: Optional[List[str]] = None
     rating: Optional[float] = None
     active_orders: Optional[List[str]] = None
@@ -44,7 +44,7 @@ class producer_response(BaseModel):
 class producer_post(BaseModel):
     first_name: str = Field(..., min_length=1, max_length=50)
     last_name : str = Field(..., min_length=1, max_length=50)
-    phone_number: str = Field(...)
+    phone_number: str = Field(..., min_length=10, max_length=15, regex="[0-9]{10,15}")
     address: address_in
     
 
