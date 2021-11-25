@@ -1,9 +1,10 @@
 from logging import raiseExceptions
 from typing import Optional
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, status
 from bson import ObjectId
 from fastapi.params import Query, Path
 from pymongo import response
+from pymongo.collection import ReturnDocument
 from pymongo.message import insert, update
 from models.producer_model import *
 from config.database import producer_collection, deactivated_producer_collection
@@ -14,7 +15,7 @@ producer_router = APIRouter()
 
 # Get a producer by id
 @producer_router.get("/{id}", response_model=producer_response, response_model_exclude_none=True)
-async def get_producer_by_id(id: str,
+async def get_producer_by_id(id: str = Path(..., min_length=24, max_length=24),
                              first_name: bool = True,
                              last_name: bool = True,
                              phone_number: bool = True,
@@ -129,26 +130,48 @@ async def post_producer(producer: producer_post):
     return inserted_producer
     
 @producer_router.put("/{id}/address", response_model=producer_response, response_model_exclude=["rating", "active_orders","food_items", "menu", "date_created", "date_updated"])
-async def put_producer_address(id: str, producer: producer_post):
-    # Searching for producer document with the id passed in
-    producer_document = producer_collection.find_one({"_id": ObjectId(id)})
-    
-    if producer_document is None:
-        raise HTTPException(status_code=404, detail="Producer not found with id of " + id)
+async def put_producer_address(*, id: str = Path(..., min_length=24, max_length=24), producer: producer_post):
+    # checking if passed in id is valid ObjectId type
+    if not ObjectId.is_valid(id):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail=id + " is not a valid ObjectId type!"
+        )
 
-    # Updating
+    # Preparing dict for update
     producer = producer.dict()
     producer["date_updated"] = datetime.utcnow()
 
-    result = producer_collection.update_one({"_id": ObjectId(id)}, {'$set': producer})
+    updated_producer = producer_collection.find_one_and_update(
+        {"_id": ObjectId(id)},
+        {'$set': producer},
+        return_document=ReturnDocument.AFTER
+    )
 
-    if result.modified_count is not 1:
-        raise HTTPException(status_code=400, detail="Error while updating")
+     # checking if the consumer update was sucessful
+    if updated_producer is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="Producer to be updated not found with id " + id
+        )
 
-    updated_producer = producer_collection.find_one({"_id": ObjectId(id)})
+    updated_producer = producer_serializer(updated_producer)
 
-    return producer_serializer(updated_producer)
+    return updated_producer
 
+# @producer_router.put("/{id}/menu/{day}/{meal_type}")
+# async def put_producer_menu_items(id: str = Path(..., min_length=24, max_length=24)):
+#     return[]
+
+
+
+
+
+@producer_router.delete("/{id}",  status_code=200)
+async def delete_producer_by_id(id: str):
+    producer_collection.delete_one({"_id": ObjectId(id)})
+    
+    
 
 
 
