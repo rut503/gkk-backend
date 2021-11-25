@@ -28,8 +28,12 @@ async def get_producer_by_id(id: str = Path(..., min_length=24, max_length=24),
                              date_updated: bool = True):
     
     if not ObjectId.is_valid(id):
-         raise HTTPException(status_code=404, detail=id + " is not a valid ObjectId type!")
+        raise HTTPException(
+             status_code=status.HTTP_400_BAD_REQUEST,
+             detail=id + " is not a valid ObjectId type!"
+        )
     
+    # Creating a filter_fields model with fields set to the query parameters
     field_to_filter = filter_fields()
     field_to_filter.__setattr__('first_name', first_name)
     field_to_filter.__setattr__('last_name', last_name)
@@ -49,14 +53,20 @@ async def get_producer_by_id(id: str = Path(..., min_length=24, max_length=24),
     if len(fields_to_filer_dict) != 0: 
         producer_dict = producer_collection.find_one({"_id": ObjectId(id)}, fields_to_filer_dict)
         if producer_dict is None:
-            raise HTTPException(status_code=404, detail="Consumer not found with id " + id)
+            raise HTTPException(
+                status_code=404,
+                detail="Consumer not found with id " + id
+            )
 
         return producer_serializer(producer_dict)
 
     else:
         producer_dict = producer_collection.find_one({"_id": ObjectId(id)})
         if producer_dict is None:
-            raise HTTPException(status_code=404, detail="Consumer not found with id " + id)
+            raise HTTPException(
+                status_code=404,
+                detail="Consumer not found with id " + id
+            )
         
         return producer_serializer(producer_dict)
 
@@ -73,6 +83,12 @@ async def get_producer_by_phone_number(phone_number_param: str = Path(..., min_l
                              date_created: bool = True,
                              date_updated: bool = True):
     
+    if not ObjectId.is_valid(id):
+        raise HTTPException(
+             status_code=status.HTTP_400_BAD_REQUEST,
+             detail=id + " is not a valid ObjectId type!"
+        )
+
     field_to_filter = filter_fields()
     field_to_filter.__setattr__('first_name', first_name)
     field_to_filter.__setattr__('last_name', last_name)
