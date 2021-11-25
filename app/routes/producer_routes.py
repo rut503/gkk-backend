@@ -190,18 +190,48 @@ async def put_producer_address(*, id: str = Path(..., min_length=24, max_length=
 
     return updated_producer
 
-# @producer_router.put("/{id}/menu/{day}/{meal_type}")
-# async def put_producer_menu_items(id: str = Path(..., min_length=24, max_length=24)):
-#     return[]
+@producer_router.put("/{id}/menu/{day}/{meal_type}", response_model=producer_response, response_model_exclude=["first_name", "last_name", "phone_number", "address", "rating", "active_orders","food_items", "date_created", "date_updated"])
+async def put_producer_menu_items(*, id: str = Path(..., min_length=24, max_length=24), day: day, meal_type: meal_type, meal_doc: meal_array_put):
+    # checking if passed in id is valid ObjectId type
+    if not ObjectId.is_valid(id):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail=id + " is not a valid ObjectId type!"
+        )
+    
+    meal_subdoc = "menu." + day + "." + meal_type
+    
+    producer = producer_collection.find_one({"_id": ObjectId(id)}, {meal_subdoc: 1})
+    current_food_array = producer["menu"][day][meal_type]
 
+    # Creating new subdocument
+    for food_item in meal_doc.food_array:
+        current_food_array.append(ObjectId(food_item))
+    
+    updated_subdoc = producer_collection.find_one_and_update(
+        {"_id": ObjectId(id)},
+        {"$set": 
+            {
+             meal_subdoc: current_food_array,
+             "date_updated": datetime.utcnow(),
+            }
+        },return_document=ReturnDocument.AFTER
+    )
 
+    if updated_subdoc is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="Producer to be updated not found with id " + id
+        )
+    updated_subdoc = producer_serializer(updated_subdoc)
 
-
+    return updated_subdoc
 
 @producer_router.delete("/{id}",  status_code=200)
 async def delete_producer_by_id(id: str):
     producer_collection.delete_one({"_id": ObjectId(id)})
     
+    # Cascade to implement
     
 
 

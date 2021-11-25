@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from datetime import date, datetime
 from typing import List, Set, Optional
-
+from enum import Enum
 from pydantic.fields import Field
 
 class address_optional(BaseModel):
@@ -47,7 +47,22 @@ class producer_post(BaseModel):
     phone_number: str = Field(..., min_length=10, max_length=15, regex="[0-9]{10,15}")
     address: address_in
     
+class day(str, Enum):
+    sunday = "sunday"
+    monday = "monday"
+    tuesday = "tuesday"
+    wednesday = "wednesday"
+    thursday = "thursday"
+    friday = "friday"
+    saturday = "saturday"
 
+class meal_type(str, Enum):
+    breakfast = "breakfast"
+    lunch = "lunch"
+    dinner = "dinner"
+    
+class meal_array_put(BaseModel):
+    food_array: List[str]
 
 # class menu(BaseModel):
 #     sunday: Optional[List[int]] = None
