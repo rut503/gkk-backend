@@ -3,11 +3,10 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException, status
 from bson import ObjectId
 from fastapi.params import Query, Path
-from pymongo import response
 from pymongo.collection import ReturnDocument
-from pymongo.message import insert, update
+from starlette.responses import Response
 from models.producer_model import *
-from config.database import producer_collection, deactivated_producer_collection
+from config.database import *
 from schemas.producer_schema import producer_serializer
 
 
@@ -55,7 +54,7 @@ async def get_producer_by_id(id: str = Path(..., min_length=24, max_length=24),
         if producer_dict is None:
             raise HTTPException(
                 status_code=404,
-                detail="Consumer not found with id " + id
+                detail="Producer not found with id " + id
             )
 
         return producer_serializer(producer_dict)
@@ -65,7 +64,7 @@ async def get_producer_by_id(id: str = Path(..., min_length=24, max_length=24),
         if producer_dict is None:
             raise HTTPException(
                 status_code=404,
-                detail="Consumer not found with id " + id
+                detail="Producer not found with id " + id
             )
         
         return producer_serializer(producer_dict)
@@ -108,14 +107,14 @@ async def get_producer_by_phone_number(phone_number_param: str = Path(..., min_l
     if len(fields_to_filer_dict) != 0: 
         producer_dict = producer_collection.find_one({"phone_number": phone_number_param}, fields_to_filer_dict)
         if producer_dict is None:
-            raise HTTPException(status_code=404, detail="Consumer not found with id " + id)
+            raise HTTPException(status_code=404, detail="Producer not found with id " + id)
 
         return producer_serializer(producer_dict)
 
     else:
         producer_dict = producer_collection.find_one({"phone_number": phone_number_param})
         if producer_dict is None:
-            raise HTTPException(status_code=404, detail="Consumer not found with id " + id)
+            raise HTTPException(status_code=404, detail="Producer not found with id " + id)
         
         return producer_serializer(producer_dict)
 
@@ -159,7 +158,7 @@ async def post_producer(producer: producer_post):
 
     return inserted_producer
 
-# put operation
+# put operation for first_name, last_name, phone_number and address
 @producer_router.put("/{id}/address", response_model=producer_response, response_model_exclude=["rating", "active_orders","food_items", "menu", "date_created", "date_updated"])
 async def put_producer_address(*, id: str = Path(..., min_length=24, max_length=24), producer: producer_post):
     # checking if passed in id is valid ObjectId type
@@ -179,7 +178,7 @@ async def put_producer_address(*, id: str = Path(..., min_length=24, max_length=
         return_document=ReturnDocument.AFTER
     )
 
-     # checking if the consumer update was sucessful
+     # checking if the producer update was sucessful
     if updated_producer is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, 
@@ -190,6 +189,7 @@ async def put_producer_address(*, id: str = Path(..., min_length=24, max_length=
 
     return updated_producer
 
+# put operation for menu
 @producer_router.put("/{id}/menu/{day}/{meal_type}", response_model=producer_response, response_model_exclude=["first_name", "last_name", "phone_number", "address", "rating", "active_orders","food_items", "date_created", "date_updated"])
 async def put_producer_menu_items(*, id: str = Path(..., min_length=24, max_length=24), day: day, meal_type: meal_type, meal_doc: meal_array_put):
     # checking if passed in id is valid ObjectId type
@@ -229,27 +229,43 @@ async def put_producer_menu_items(*, id: str = Path(..., min_length=24, max_leng
 
 @producer_router.delete("/{id}",  status_code=200)
 async def delete_producer_by_id(id: str):
-    producer_collection.delete_one({"_id": ObjectId(id)})
+    # checking if passed in id is valid ObjectId type
+    if not ObjectId.is_valid(id):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail=id + " is not a valid ObjectId type!"
+        )
+
+    # checking if the producer exists with passed in id
+    active_producer = producer_collection.find_one({ "_id": ObjectId(id) })
+    if active_producer is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="Producer not found with id " + id
+        )
     
-    # Cascade to implement
+    # adding producer data from producer collection to deactivated_producer collection
+    deactive_producer = deactivated_producer_collection.insert_one(active_producer)
+    if not deactive_producer.inserted_id:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+            detail="Error while deactivating producer"
+        )
+
+    # deleting the consumer from consumer collection 
+    deleted_producer = producer_collection.delete_one({ "_id": ObjectId(id) })
+    if deleted_producer.deleted_count != 1:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+            detail="Error while deleting producer"
+        )
+
+    food_item_collection.delete_many({"producer_id": ObjectId(id)})
+    review_for_consumer_collection.delete_many({ "producer_id": ObjectId(id)})
+    review_for_producer_collection.delete_many({ "producer_id": ObjectId(id)})
+    review_for_food_item_collection.delete_many({ "producer_id": ObjectId(id)})
     
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 ####################################################################################################################################################################################
