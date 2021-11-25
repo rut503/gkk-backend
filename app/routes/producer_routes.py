@@ -103,12 +103,16 @@ async def get_producer_by_phone_number(phone_number_param: str = Path(..., min_l
         
         return producer_serializer(producer_dict)
 
+# post call
 @producer_router.post("/", response_model=producer_response)
 async def post_producer(producer: producer_post):
     # Checking if the phone number is already associated with a producer
     producer_document = producer_collection.find_one({"phone_number": producer.dict()["phone_number"]})
-    if producer_document is not None:
-        raise HTTPException(status_code=422 , detail="Proudcer already exists with phone number, " + producer_document["phone_number"])
+    if producer_document:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT , 
+            detail="Proudcer already exists with phone number, " + producer_document["phone_number"]
+        )
 
     # Creating dict for producer to be inserted
     producer_dict = producer.dict()
@@ -119,16 +123,27 @@ async def post_producer(producer: producer_post):
     producer_dict["date_created"] = datetime.utcnow()
     producer_dict["date_updated"] = datetime.utcnow()    
 
+    # Inserting new producer
     insert_result = producer_collection.insert_one(producer_dict)
     if not insert_result.inserted_id:
-        raise HTTPException(status_code=400, detail="Error while inserting")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+            detail="Error while inserting"
+        )
     
     # Returning new producer
     inserted_producer = producer_collection.find_one({"_id": insert_result.inserted_id})
+    
+    if inserted_producer is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="After inserting, Producer not found with id " + insert_result.inserted_id
+        )
     inserted_producer = producer_serializer(inserted_producer)
 
     return inserted_producer
-    
+
+# put operation
 @producer_router.put("/{id}/address", response_model=producer_response, response_model_exclude=["rating", "active_orders","food_items", "menu", "date_created", "date_updated"])
 async def put_producer_address(*, id: str = Path(..., min_length=24, max_length=24), producer: producer_post):
     # checking if passed in id is valid ObjectId type
