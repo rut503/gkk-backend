@@ -5,15 +5,15 @@ from bson import ObjectId
 from datetime import datetime
 from starlette.responses import Response
 
-from config.database import ( 
+from app.config.database import ( 
     consumer_collection, 
     deactivated_consumer_collection, 
     review_for_consumer_collection, 
     review_for_producer_collection, 
     review_for_food_item_collection
 )
-from models.consumer_model import consumer_in, consumer_response
-from schemas.consumer_schema import consumer_serializer
+from app.models.consumer_model import consumer_post, consumer_put, consumer_response
+from app.schemas.consumer_schema import consumer_serializer
 
 consumer_router = APIRouter()
 
@@ -52,7 +52,7 @@ async def get_consumer_by_phone_number( phone_number: str = Path(..., min_length
 
 # post data
 @consumer_router.post("/", response_model=consumer_response, status_code=status.HTTP_201_CREATED)
-async def post_consumer(consumer: consumer_in):
+async def post_consumer(consumer: consumer_post):
     # checking if consumer with phone_number already exists 
     existing_consumer = consumer_collection.find_one({ "phone_number": consumer.phone_number })
     if existing_consumer:
@@ -65,16 +65,28 @@ async def post_consumer(consumer: consumer_in):
     consumer = consumer.dict()
     consumer["rating"] = 0
     consumer["active_orders"] = []
-    consumer["date_created"] = datetime.today()
-    consumer["date_updated"] = datetime.today()
+    consumer["date_created"] = datetime.utcnow()
+    consumer["date_updated"] = datetime.utcnow()
+
+    #############################################################################
+    # TODO: Do something about photo upload here and get the URL to store in DB #
+    #############################################################################
 
     # inserting the consumer into DB
     inserted_consumer = consumer_collection.insert_one(consumer)
     if not inserted_consumer.inserted_id:
-        raise HTTPException(status_code=400, detail="Error while inserting")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+            detail="Error while inserting"
+        )
     
     # finding that inserted consumer 
     inserted_consumer = consumer_collection.find_one({ "_id": inserted_consumer.inserted_id })
+    if inserted_consumer is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="After inserting, Consumer not found with id " + inserted_consumer.inserted_id
+        )
     inserted_consumer = consumer_serializer(inserted_consumer)
     
     # returning inserted consumer back
@@ -83,7 +95,7 @@ async def post_consumer(consumer: consumer_in):
 
 # put data
 @consumer_router.put("/{id}", response_model=consumer_response)
-async def put_consumer(*, id: str = Path(..., min_length=24, max_length=24), consumer: consumer_in):
+async def put_consumer( *, id: str = Path(..., min_length=24, max_length=24), consumer: consumer_put ):
     # checking if passed in id is valid ObjectId type
     if not ObjectId.is_valid(id):
         raise HTTPException(
@@ -93,7 +105,11 @@ async def put_consumer(*, id: str = Path(..., min_length=24, max_length=24), con
 
     # manually setting date_updated field to current datetime
     consumer = consumer.dict()
-    consumer["date_updated"] = datetime.today()
+    consumer["date_updated"] = datetime.utcnow()
+
+    #############################################################################
+    # TODO: Do something about photo upload here and get the URL to store in DB #
+    #############################################################################
     
     # finding and updating consumer 
     updated_consumer = consumer_collection.find_one_and_update(
@@ -153,3 +169,4 @@ async def delete_consumer(id: str = Path(..., min_length=24, max_length=24)):
     review_for_producer_collection.delete_many({ "consumer_id": ObjectId(id)})
     review_for_food_item_collection.delete_many({ "consumer_id": ObjectId(id)})
 
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

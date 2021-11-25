@@ -148,7 +148,6 @@
             producer_id: ObjectId,
             diet_preferance: "Vegan",
             description: "This is a description of Poteto Bhajiyas",
-            photo: PhotoBinaryData
             price: 6.99,
             name: "Potato Bhajiya",
             portion_size: 12,
@@ -163,7 +162,6 @@
         {
             diet_preferance: "Vegan",
             description: "This is a description of Poteto Bhajiyas",
-            photo: PhotoBinaryData
             price: 6.99,
             name: "Potato Bhajiya",
             portion_size: 12,
