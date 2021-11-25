@@ -8,6 +8,18 @@ MONGODB_URL = os.getenv('MONGODB_URL')
 
 client = MongoClient(MONGODB_URL)
 
+# from urllib.parse import quote_plus
+# uri = "mongodb://%s:%s@%s" % ( quote_plus(user), quote_plus(password), host)
+# client = MongoClient(uri)
+
+# from pymongo.errors import ConnectionFailure
+# client = MongoClient()
+# try:
+#     # The ping command is cheap and does not require auth.
+#     client.admin.command('ping')
+# except ConnectionFailure:
+#     print("Server not available")
+
 db = client.gkk
 
 consumer_collection = db["consumer"]
