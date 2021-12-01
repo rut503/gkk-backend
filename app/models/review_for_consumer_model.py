@@ -15,7 +15,6 @@ class review_for_consumer_put(BaseModel):
     rating: Optional[int] = Field(None, ge=0, le=5)
     title: Optional[str] = Field(None, min_length=1, max_length=600)
     description: Optional[str] = Field(None, min_length=1, max_length=100)
-    date_updated: Optional[datetime]
 
 class review_for_consumer_response(BaseModel):
     id: str

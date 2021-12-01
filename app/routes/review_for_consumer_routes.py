@@ -4,9 +4,9 @@ from bson import ObjectId
 from fastapi.params import Path, Query
 from pymongo.message import update
 from starlette import status
-from app.models.review_for_consumer_model import *
-from app.config.database import review_for_consumer_collection
-from app.schemas.review_for_consumer_schema import review_for_consumer_serializer, reviews_for_consumer_serializer
+from models.review_for_consumer_model import *
+from config.database import review_for_consumer_collection
+from schemas.review_for_consumer_schema import review_for_consumer_serializer, reviews_for_consumer_serializer
 from datetime import datetime
 
 review_for_consumer_router = APIRouter()
@@ -87,6 +87,11 @@ async def post_review_for_consumer(review: review_for_consumer_post):
         "date_created" : datetime.utcnow(),
         "date_updated" : datetime.utcnow()
     }
+
+    # Convert string to ObjectId
+    review_to_insert["producer_id"] = ObjectId(review_to_insert["producer_id"])
+    review_to_insert["consumer_id"] = ObjectId(review_to_insert["consumer_id"])
+
     result = review_for_consumer_collection.insert_one(review_to_insert)
 
     if not result.inserted_id:
@@ -102,18 +107,31 @@ async def post_review_for_consumer(review: review_for_consumer_post):
 
 @review_for_consumer_router.put("/{id}", response_model=review_for_consumer_response)
 async def update_review_for_consumer( *, id: str = Path(..., min_length=24, max_length=24), review: review_for_consumer_put ):
-    review_to_update_dict = review_for_consumer_serializer( review_for_consumer_collection.find_one({ "_id": ObjectId(id) }) )
+    # checking if passed in id is valid ObjectId type
+    if not ObjectId.is_valid(id):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail=id + " is not a valid ObjectId type!"
+        )
+    
+    curent_review = review_for_consumer_serializer( review_for_consumer_collection.find_one({ "_id": ObjectId(id) }) )
+    
     # Updating date_updated field
-    review_to_update_dict ['date_updated'] = datetime.utcnow()
-    review_identifier = review_to_update_dict['id']
+    curent_review ['date_updated'] = datetime.utcnow()
+    review_identifier = curent_review['id']
 
-    fields_to_change_model = review_for_consumer_put(**review_to_update_dict)
-    updated_fields_dict = review.dict(exclude_unset=True)
-    updated_model = fields_to_change_model.copy(update=updated_fields_dict)
+    fields_to_change_model = review_for_consumer_put(**curent_review)
+    updated_data = review.dict(exclude_unset=True)
+    updated_review = fields_to_change_model.copy(update=updated_data)
+    
+    # Making Basemodel a dict
+    updated_review = updated_review.dict()
+    # Setting updated time
+    updated_review["date_updated"] = datetime.utcnow()
 
     result = review_for_consumer_collection.update_one(
         { "_id": ObjectId(review_identifier) }, 
-        { "$set": updated_model.dict() }
+        { "$set": updated_review }
     )
 
     if result.modified_count != 1:
@@ -122,9 +140,9 @@ async def update_review_for_consumer( *, id: str = Path(..., min_length=24, max_
             detail="Error while updating"
         )
 
-    updated_review = review_for_consumer_collection.find_one({ "_id": ObjectId(review_identifier) })
-    updated_review = review_for_consumer_serializer(updated_review)
-    return updated_review
+    updated_review_document = review_for_consumer_collection.find_one({ "_id": ObjectId(review_identifier) })
+    updated_review_document = review_for_consumer_serializer(updated_review_document)
+    return updated_review_document
 
 @review_for_consumer_router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_review_for_consumer( id: str = Path(..., min_length=24, max_length=24) ):
