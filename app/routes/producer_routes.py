@@ -69,6 +69,7 @@ async def get_producer_by_id(id: str = Path(..., min_length=24, max_length=24),
         
         return producer_serializer(producer_dict)
 
+# Get call with phone number
 @producer_router.get("/phone_number/{phone_number_param}", response_model=producer_response, response_model_exclude_none=True)
 async def get_producer_by_phone_number(phone_number_param: str = Path(..., min_length=10, max_length=15, regex="[0-9]{10,15}"),
                              first_name: bool = True,
@@ -227,6 +228,61 @@ async def put_producer_menu_items(*, id: str = Path(..., min_length=24, max_leng
 
     return updated_subdoc
 
+# Update one menu id
+@producer_router.put("/{id}/menu/{day}/{meal_type}/{menu_id}", status_code=200, response_model=producer_response, response_model_exclude=["first_name", "last_name", "phone_number", "address", "rating", "active_orders","food_items", "date_created", "date_updated"])
+async def delete_producer_menu_items(*, id: str = Path(..., min_length=24, max_length=24), day: day, meal_type: meal_type, menu_id: str):
+    # Checking if passed in id is valid ObjectId type
+    if not ObjectId.is_valid(id):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail=id + " is not a valid ObjectId type!"
+        )
+
+    # Checking if passed in id is valid ObjectId type
+    if not ObjectId.is_valid(menu_id):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail=menu_id + " is not a valid ObjectId type!"
+        )
+
+    # Checking if the producer exists with passed in id
+    producer = producer_collection.find_one({ "_id": ObjectId(id) })
+    if producer is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="Producer not found with id " + id
+        )
+    meal_subdoc = "menu." + day + "." + meal_type
+    
+    # Checking for food id in producers menu array
+    if ObjectId(menu_id) not in producer["menu"][day][meal_type]:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="Food item with id of " + menu_id + " not found in " + day + "'s " + meal_type + " array"
+        )
+
+    # Pulling Food id from respective array
+    producer_updated = producer_collection.find_one_and_update(
+        {"_id": ObjectId(id)},
+        {"$pull": 
+            {meal_subdoc: 
+                ObjectId(menu_id)
+            }
+        },
+        return_document=ReturnDocument.AFTER
+    )
+
+    # Producer check
+    if producer_updated is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="Producer to be updated not found with id " + id
+        )
+    producer_updated = producer_serializer(producer_updated)
+
+    return producer_updated
+
+# Delete via id
 @producer_router.delete("/{id}",  status_code=200)
 async def delete_producer_by_id(id: str):
     # checking if passed in id is valid ObjectId type
@@ -260,6 +316,7 @@ async def delete_producer_by_id(id: str):
             detail="Error while deleting producer"
         )
 
+    # Deleting associated documents
     food_item_collection.delete_many({"producer_id": ObjectId(id)})
     review_for_consumer_collection.delete_many({ "producer_id": ObjectId(id)})
     review_for_producer_collection.delete_many({ "producer_id": ObjectId(id)})
@@ -268,6 +325,9 @@ async def delete_producer_by_id(id: str):
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
+    
+
+    
 ####################################################################################################################################################################################
 # 
 #                                                                                       Helper Dicts for menu subdocument
