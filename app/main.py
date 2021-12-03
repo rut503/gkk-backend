@@ -1,55 +1,29 @@
 from fastapi import FastAPI
-from routes.grade_routes import grade_router
-
+from app.routes.consumer_routes import consumer_router
+from app.routes.food_item_routes import food_item_router
+from app.routes.review_for_consumer_routes import review_for_consumer_router
 
 app = FastAPI()
 
-app.include_router(grade_router)
+# consumer routes
+app.include_router(
+    consumer_router,
+    prefix="/consumer",
+    tags=["Consumer"]
+)
+
+# producer routes
 
 
-# class Address(BaseModel):
-#     street: str
-#     city: str
-#     state: str
-#     zip: int
+# food_item routes
+app.include_router(
+    food_item_router,
+    prefix="/food_item",
+    tags=["Food Item"]
+)
 
-# class Menu(BaseModel):
-#     sunday: Optional[List[int]] = None
-#     monday: Optional[List[int]] = None
-#     tuesday: Optional[List[int]] = None
-#     wednesday: Optional[List[int]] = None
-#     thursday: Optional[List[int]] = None
-#     friday: Optional[List[int]] = None
-#     saturday: Optional[List[int]] = None
-
-# class Producer(BaseModel):
-#     firstName: str 
-#     lastName: str
-#     phoneNum: int
-#     address: Address
-#     food: Optional[List] = None
-#     averageProducerRating: int = 0
-#     acceptedOrdersToCreate: Optional[Set[int]] = None
-#     pendingOrderForProducer: Optional[Set[int]] = None
-#     menu: Optional[Menu]
-
-# @app.get("/")
-# async def root():
-#     return {"msg": "Hello Rutvi"}
-
-# @app.get("/items/{item_id}")
-# async def read_item(item_id: int):
-#     return {"item_id": item_id}
-
-# @app.get("/producers/")
-# async def get_producers() -> List[Producer] :
-#     return {"producers": "LIST[producers]"}
-
-# @app.get("/producer/{producer_id}")
-# async def get_producer(producer_id: int):
-#     return {"producers": producer_id}
-
-# @app.post("/producer/")
-# async def create_producer(producer: Producer):
-#     print(producer)
-#     return {"producers": "one producer"}
+app.include_router(
+    review_for_consumer_router,
+    prefix="/review_for_consumer",
+    tags=["Review for Consumer"]
+)
