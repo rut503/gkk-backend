@@ -130,7 +130,7 @@ async def put_producer_address(*, id: str = Path(..., min_length=24, max_length=
 
     return updated_producer
 
-# put operation for menu
+# Put operation for menu
 @producer_router.put("/{id}/menu/{day}/{meal_type}", response_model=producer_response, response_model_exclude=["first_name", "last_name", "phone_number", "address", "rating", "active_orders","food_items", "date_created", "date_updated"])
 async def put_producer_menu_items(*, id: str = Path(..., min_length=24, max_length=24), day: day, meal_type: meal_type, meal_doc: meal_array_put):
     # checking if passed in id is valid ObjectId type
@@ -168,7 +168,7 @@ async def put_producer_menu_items(*, id: str = Path(..., min_length=24, max_leng
 
     return updated_subdoc
 
-# Update one menu id
+# Remove one menu id
 @producer_router.put("/{id}/menu/{day}/{meal_type}/{menu_id}", status_code=200, response_model=producer_response, response_model_exclude=["first_name", "last_name", "phone_number", "address", "rating", "active_orders","food_items", "date_created", "date_updated"])
 async def delete_producer_menu_items(*, id: str = Path(..., min_length=24, max_length=24), day: day, meal_type: meal_type, menu_id: str):
     # Checking if passed in id is valid ObjectId type
@@ -225,22 +225,29 @@ async def delete_producer_menu_items(*, id: str = Path(..., min_length=24, max_l
 # Delete via id
 @producer_router.delete("/{id}",  status_code=200)
 async def delete_producer_by_id(id: str):
-    # checking if passed in id is valid ObjectId type
+    # Checking if passed in id is valid ObjectId type
     if not ObjectId.is_valid(id):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, 
             detail=id + " is not a valid ObjectId type!"
         )
 
-    # checking if the producer exists with passed in id
+    # Checking if the producer exists with passed in id
     active_producer = producer_collection.find_one({ "_id": ObjectId(id) })
     if active_producer is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, 
             detail="Producer not found with id " + id
         )
+
+    # Setting fields we don't want to archive to empty
+    active_producer["food_items"] = []
+    active_producer["menu"] = {}
+
+    # Cancelling active order
     
-    # adding producer data from producer collection to deactivated_producer collection
+
+    # Archiving producer data from producer collection to deactivated_producer collection
     deactive_producer = deactivated_producer_collection.insert_one(active_producer)
     if not deactive_producer.inserted_id:
         raise HTTPException(
@@ -248,7 +255,7 @@ async def delete_producer_by_id(id: str):
             detail="Error while deactivating producer"
         )
 
-    # deleting the consumer from consumer collection 
+    # Deleting the consumer from consumer collection 
     deleted_producer = producer_collection.delete_one({ "_id": ObjectId(id) })
     if deleted_producer.deleted_count != 1:
         raise HTTPException(
@@ -263,10 +270,6 @@ async def delete_producer_by_id(id: str):
     review_for_food_item_collection.delete_many({ "producer_id": ObjectId(id)})
     
     return Response(status_code=status.HTTP_204_NO_CONTENT)
-
-
-    
-
     
 ####################################################################################################################################################################################
 # 
