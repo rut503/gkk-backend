@@ -4,9 +4,9 @@ from fastapi.params import Path
 from pymongo import ReturnDocument
 from bson import ObjectId
 from datetime import datetime
-from config.database import consumer_collection, deactivated_consumer_collection
-from models.consumer_model import consumer_post, consumer_put, consumer_response
-from schemas.consumer_schema import consumer_serializer, consumers_serializer
+from app.config.database import consumer_collection, deactivated_consumer_collection
+from app.models.consumer_model import consumer_post, consumer_put, consumer_response
+from app.schemas.consumer_schema import consumer_serializer, consumers_serializer
 
 consumer_router = APIRouter()
 
