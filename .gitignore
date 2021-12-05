@@ -3,5 +3,12 @@
 venv/
 ignore.txt
 
+# Cache
+__pycache__
+config/__pycache__
+models/__pycache__
+routes/__pycache__
+schemas/__pycache__
+
 # macOS
 .DS_Store
