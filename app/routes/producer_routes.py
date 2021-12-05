@@ -245,7 +245,19 @@ async def delete_producer_by_id(id: str):
     active_producer["menu"] = {}
 
     # Cancelling active order
-    
+    for order in active_producer["active_orders"]:
+        order_document = active_order_collection.find_one_and_update(
+            {"_id": ObjectId(order)}, 
+            {"$set": {"status": "cancelled"}},
+            return_document=ReturnDocument.AFTER
+        )
+
+        if order_document is None:
+            raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="Order not found with id of " + str(order)
+        )
+
 
     # Archiving producer data from producer collection to deactivated_producer collection
     deactive_producer = deactivated_producer_collection.insert_one(active_producer)
