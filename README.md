@@ -88,6 +88,11 @@
                 state: "IL",
                 zip_code: "60115"
             }
+        }
+    ```
+    - `PUT : /producer/{id}/menu`
+    ```
+        {
             menu: {
                 sunday: {
                     breakfast: [ food_item_id ],
@@ -127,7 +132,6 @@
             }
         }
     ```
-
 - Delete producer
     - `DELETE : /producer/{id}`
 
@@ -135,26 +139,7 @@
 
 - Find food item
     - `GET : /food_item/{id}`
-    - `GET : /food_item/filter ? ______ `
-        - Query Parameters
-        ```
-            time = [ "breakfast", "lunch", "dinner" ] (3 values, list)
-            diet_preference = [ "Low Carb",      "High Protein",
-                                "Low/No Sodium", "Diabetic",
-                                "Gluten Free",   "Lactose Free",
-                                "Vegetarian",    "Non-Vegetarian",
-                                "Paleo",         "Vegan",
-                                "Pescetarian",   "Eggitarian",
-                                "Nut Free",      "Other"
-                              ] (14 values, list)
-            min_price = 4.99 ($, float)
-            max_price = 14.99 ($, float)
-            consumer_coordinates = ??????
-            distance_radius = 8 (miles, float)
-            ratings = 4 (stars, int)
-            spicy_level = 3 (pepers, int)
-            chef_name = "ritu shah" (chef, str)
-        ```
+    - `GET : /food_item ? producer_id="" `
 
 - Create new food item
     - `POST : /food_item/`
@@ -163,7 +148,6 @@
             producer_id: ObjectId,
             diet_preferance: "Vegan",
             description: "This is a description of Poteto Bhajiyas",
-            photo: PhotoBinaryData
             price: 6.99,
             name: "Potato Bhajiya",
             portion_size: 12,
@@ -178,7 +162,6 @@
         {
             diet_preferance: "Vegan",
             description: "This is a description of Poteto Bhajiyas",
-            photo: PhotoBinaryData
             price: 6.99,
             name: "Potato Bhajiya",
             portion_size: 12,
@@ -348,3 +331,25 @@
     - `DELETE : /review_for_food/{id}`
 
 #### Special Routes
+
+- Search for food items 
+    - `GET : /search/food_item ? ______ `
+        - Query Parameters
+        ```
+            time = [ "breakfast", "lunch", "dinner" ] (3 values, list)
+            diet_preference = [ "Low Carb",      "High Protein",
+                                "Low/No Sodium", "Diabetic",
+                                "Gluten Free",   "Lactose Free",
+                                "Vegetarian",    "Non-Vegetarian",
+                                "Paleo",         "Vegan",
+                                "Pescetarian",   "Eggitarian",
+                                "Nut Free",      "Other"
+                              ] (14 values, list)
+            min_price = 4.99 ($, float)
+            max_price = 14.99 ($, float)
+            consumer_coordinates = ??????
+            distance_radius = 8 (miles, float)
+            ratings = 4 (stars, int)
+            spicy_level = 3 (pepers, int)
+            chef_name = "ritu shah" (chef, str)
+        ```
