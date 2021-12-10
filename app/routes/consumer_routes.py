@@ -5,15 +5,15 @@ from bson import ObjectId
 from datetime import datetime
 from starlette.responses import Response
 
-from config.database import ( 
+from app.config.database import ( 
     consumer_collection, 
     deactivated_consumer_collection, 
     review_for_consumer_collection, 
     review_for_producer_collection, 
     review_for_food_item_collection
 )
-from models.consumer_model import consumer_post, consumer_put, consumer_response
-from schemas.consumer_schema import consumer_serializer
+from app.models.consumer_model import consumer_post, consumer_put, consumer_response
+from app.schemas.consumer_schema import consumer_serializer
 
 consumer_router = APIRouter()
 

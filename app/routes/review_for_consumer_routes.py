@@ -1,17 +1,38 @@
+from os import stat
 from typing import Optional, List
 from fastapi import APIRouter, HTTPException
 from bson import ObjectId
 from fastapi.params import Path, Query
 from pymongo.message import update
 from starlette import status
-from models.review_for_consumer_model import *
-from config.database import review_for_consumer_collection
-from schemas.review_for_consumer_schema import review_for_consumer_serializer, reviews_for_consumer_serializer
+from app.models.review_for_consumer_model import *
+from app.config.database import review_for_consumer_collection
+from app.schemas.review_for_consumer_schema import review_for_consumer_serializer, reviews_for_consumer_serializer
 from datetime import datetime
 
 review_for_consumer_router = APIRouter()
 
-@review_for_consumer_router.get("", response_model=List[review_for_consumer_response])
+# Get a review by id
+@review_for_consumer_router.get("/{id}", response_model=review_for_consumer_response, status_code=status.HTTP_200_OK)
+async def get_review_for_consumer_by_id( id: str = Path(..., min_length=24, max_length=24) ):
+    if not ObjectId.is_valid(id):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail=id + "is not a valid ObjectId type"
+        )
+
+    review_document_returned = review_for_consumer_collection.find_one({ "_id": ObjectId(id) })
+    if review_document_returned is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="Consumer review not found with id of " + id
+        )
+    
+    serialized_review_document = review_for_consumer_serializer(review_document_returned)
+    return serialized_review_document
+
+# Get a all reviews between a consumer and producer
+@review_for_consumer_router.get("", response_model=List[review_for_consumer_response], status_code=status.HTTP_200_OK)
 async def get_all_review_for_consumer_by_user(
     consumer_id: Optional[str] = Query(None, min_length=24, max_length=24),
     producer_id: Optional[str] = Query(None, min_length=24, max_length=24)
@@ -58,26 +79,6 @@ async def get_all_review_for_consumer_by_user(
         
         review_document_cursor = review_for_consumer_collection.find({ "producer_id": ObjectId(producer_id) })
         return reviews_for_consumer_serializer(review_document_cursor)
-    
-
-# Get a unique review
-@review_for_consumer_router.get("/{id}", response_model=review_for_consumer_response)
-async def get_review_for_consumer_by_id( id: str = Path(..., min_length=24, max_length=24) ):
-    if not ObjectId.is_valid(id):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
-            detail=id + "is not a valid ObjectId type"
-        )
-
-    review_document_returned = review_for_consumer_collection.find_one({ "_id": ObjectId(id) })
-    if review_document_returned is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
-            detail="Consumer review not found with id of " + id
-        )
-    
-    serialized_review_document = review_for_consumer_serializer(review_document_returned)
-    return serialized_review_document
 
 # Post a single review
 @review_for_consumer_router.post("/", response_model=review_for_consumer_response, status_code=status.HTTP_201_CREATED)
@@ -105,7 +106,8 @@ async def post_review_for_consumer(review: review_for_consumer_post):
     inserted_review = review_for_consumer_serializer(inserted_review)
     return inserted_review
 
-@review_for_consumer_router.put("/{id}", response_model=review_for_consumer_response)
+
+@review_for_consumer_router.put("/{id}", response_model=review_for_consumer_response, status_code=status.HTTP_200_OK)
 async def update_review_for_consumer( *, id: str = Path(..., min_length=24, max_length=24), review: review_for_consumer_put ):
     # checking if passed in id is valid ObjectId type
     if not ObjectId.is_valid(id):
