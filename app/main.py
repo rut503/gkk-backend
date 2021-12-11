@@ -6,7 +6,7 @@ from app.routes.review_for_consumer_routes import review_for_consumer_router
 
 app = FastAPI()
 
-# consumer routes
+#consumer routes
 app.include_router(
     consumer_router,
     prefix="/consumer",

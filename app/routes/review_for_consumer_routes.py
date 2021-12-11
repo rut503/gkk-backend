@@ -1,3 +1,4 @@
+from os import stat
 from typing import Optional, List
 from fastapi import APIRouter, HTTPException
 from bson import ObjectId
@@ -12,8 +13,27 @@ from datetime import datetime
 
 review_for_consumer_router = APIRouter()
 
+# Get a review by id
+@review_for_consumer_router.get("/{id}", response_model=review_for_consumer_response, status_code=status.HTTP_200_OK)
+async def get_review_for_consumer_by_id( id: str = Path(..., min_length=24, max_length=24) ):
+    if not ObjectId.is_valid(id):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail=id + "is not a valid ObjectId type"
+        )
 
-@review_for_consumer_router.get("", response_model=List[review_for_consumer_response])
+    review_document_returned = review_for_consumer_collection.find_one({ "_id": ObjectId(id) })
+    if review_document_returned is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="Consumer review not found with id of " + id
+        )
+    
+    serialized_review_document = review_for_consumer_serializer(review_document_returned)
+    return serialized_review_document
+
+# Get a all reviews between a consumer and producer
+@review_for_consumer_router.get("", response_model=List[review_for_consumer_response], status_code=status.HTTP_200_OK)
 async def get_all_review_for_consumer_by_user(
     consumer_id: Optional[str] = Query(None, min_length=24, max_length=24),
     producer_id: Optional[str] = Query(None, min_length=24, max_length=24)
@@ -59,25 +79,6 @@ async def get_all_review_for_consumer_by_user(
         return reviews_for_consumer_serializer(review_document_cursor)
 
 
-# Get a unique review
-@review_for_consumer_router.get("/{id}", response_model=review_for_consumer_response)
-async def get_review_for_consumer_by_id( id: str = Path(..., min_length=24, max_length=24) ):
-    if not ObjectId.is_valid(id):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
-            detail=id + "is not a valid ObjectId type"
-        )
-
-    review_document_returned = review_for_consumer_collection.find_one({ "_id": ObjectId(id) })
-    if review_document_returned is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
-            detail="Consumer review not found with id of " + id
-        )
-    
-    serialized_review_document = review_for_consumer_serializer(review_document_returned)
-    return serialized_review_document
-
 # Post a single review
 @review_for_consumer_router.post("/", response_model=review_for_consumer_response, status_code=status.HTTP_201_CREATED)
 async def post_review_for_consumer(review: review_for_consumer_post):
@@ -86,6 +87,11 @@ async def post_review_for_consumer(review: review_for_consumer_post):
         "date_created" : datetime.utcnow(),
         "date_updated" : datetime.utcnow()
     }
+
+    # Convert string to ObjectId
+    review_to_insert["producer_id"] = ObjectId(review_to_insert["producer_id"])
+    review_to_insert["consumer_id"] = ObjectId(review_to_insert["consumer_id"])
+
     result = review_for_consumer_collection.insert_one(review_to_insert)
 
     if not result.inserted_id:
@@ -100,21 +106,33 @@ async def post_review_for_consumer(review: review_for_consumer_post):
     return inserted_review
 
 
-@review_for_consumer_router.put("/{id}", response_model=review_for_consumer_response)
+@review_for_consumer_router.put("/{id}", response_model=review_for_consumer_response, status_code=status.HTTP_200_OK)
 async def update_review_for_consumer( *, id: str = Path(..., min_length=24, max_length=24), review: review_for_consumer_put ):
-    review_to_update_dict = review_for_consumer_serializer( review_for_consumer_collection.find_one({ "_id": ObjectId(id) }) )
+    # checking if passed in id is valid ObjectId type
+    if not ObjectId.is_valid(id):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail=id + " is not a valid ObjectId type!"
+        )
+    
+    curent_review = review_for_consumer_serializer( review_for_consumer_collection.find_one({ "_id": ObjectId(id) }) )
     
     # Updating date_updated field
-    review_to_update_dict['date_updated'] = datetime.utcnow()
-    review_identifier = review_to_update_dict['id']
+    curent_review ['date_updated'] = datetime.utcnow()
+    review_identifier = curent_review['id']
 
-    fields_to_change_model = review_for_consumer_put(**review_to_update_dict)
-    updated_fields_dict = review.dict(exclude_unset=True)
-    updated_model = fields_to_change_model.copy(update=updated_fields_dict)
+    fields_to_change_model = review_for_consumer_put(**curent_review)
+    updated_data = review.dict(exclude_unset=True)
+    updated_review = fields_to_change_model.copy(update=updated_data)
+    
+    # Making Basemodel a dict
+    updated_review = updated_review.dict()
+    # Setting updated time
+    updated_review["date_updated"] = datetime.utcnow()
 
     result = review_for_consumer_collection.update_one(
         { "_id": ObjectId(review_identifier) }, 
-        { "$set": updated_model.dict() }
+        { "$set": updated_review }
     )
 
     if result.modified_count != 1:
@@ -123,9 +141,9 @@ async def update_review_for_consumer( *, id: str = Path(..., min_length=24, max_
             detail="Error while updating"
         )
 
-    updated_review = review_for_consumer_collection.find_one({ "_id": ObjectId(review_identifier) })
-    updated_review = review_for_consumer_serializer(updated_review)
-    return updated_review
+    updated_review_document = review_for_consumer_collection.find_one({ "_id": ObjectId(review_identifier) })
+    updated_review_document = review_for_consumer_serializer(updated_review_document)
+    return updated_review_document
 
 
 @review_for_consumer_router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
