@@ -5,6 +5,7 @@ from bson import ObjectId
 from fastapi.params import Path, Query
 from pymongo.message import update
 from starlette import status
+
 from app.models.review_for_consumer_model import *
 from app.config.database import review_for_consumer_collection
 from app.schemas.review_for_consumer_schema import review_for_consumer_serializer, reviews_for_consumer_serializer
@@ -51,11 +52,10 @@ async def get_all_review_for_consumer_by_user(
                 detail=producer_id + "is not a valid ObjectId type"
             )
 
-        review_document_cursor = review_for_consumer_collection.find(
-            {
-                "consumer_id": ObjectId(consumer_id), 
-                "producer_id": ObjectId(producer_id)
-            })
+        review_document_cursor = review_for_consumer_collection.find({
+            "consumer_id": ObjectId(consumer_id), 
+            "producer_id": ObjectId(producer_id)
+        })
         return reviews_for_consumer_serializer(review_document_cursor)
 
     # Check if consumer_id is not none
@@ -65,7 +65,6 @@ async def get_all_review_for_consumer_by_user(
                 status_code=status.HTTP_404_NOT_FOUND, 
                 detail=consumer_id + "is not a valid ObjectId type"
             )
-
         review_document_cursor = review_for_consumer_collection.find({ "consumer_id": ObjectId(consumer_id) })
         return reviews_for_consumer_serializer(review_document_cursor)
 
@@ -76,9 +75,9 @@ async def get_all_review_for_consumer_by_user(
                 status_code=status.HTTP_404_NOT_FOUND, 
                 detail=producer_id + "is not a valid ObjectId type"
             )
-        
         review_document_cursor = review_for_consumer_collection.find({ "producer_id": ObjectId(producer_id) })
         return reviews_for_consumer_serializer(review_document_cursor)
+
 
 # Post a single review
 @review_for_consumer_router.post("/", response_model=review_for_consumer_response, status_code=status.HTTP_201_CREATED)
@@ -146,9 +145,7 @@ async def update_review_for_consumer( *, id: str = Path(..., min_length=24, max_
     updated_review_document = review_for_consumer_serializer(updated_review_document)
     return updated_review_document
 
+
 @review_for_consumer_router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_review_for_consumer( id: str = Path(..., min_length=24, max_length=24) ):
     review_for_consumer_collection.delete_one({ "_id": ObjectId(id) })
-
-
-

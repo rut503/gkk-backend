@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from app.routes.consumer_routes import consumer_router
+from app.routes.producer_routes import producer_router
 from app.routes.food_item_routes import food_item_router
 from app.routes.review_for_consumer_routes import review_for_consumer_router
 
@@ -13,7 +14,11 @@ app.include_router(
 )
 
 # producer routes
-
+app.include_router(
+    producer_router,
+    prefix="/producer",
+    tags=["Producer"]
+)
 
 # food_item routes
 app.include_router(
@@ -22,6 +27,7 @@ app.include_router(
     tags=["Food Item"]
 )
 
+# review_for_consumer routes
 app.include_router(
     review_for_consumer_router,
     prefix="/review_for_consumer",
