@@ -6,30 +6,35 @@ from app.routes.review_for_consumer_routes import review_for_consumer_router
 
 app = FastAPI()
 
-# consumer routes
-app.include_router(
-    consumer_router,
-    prefix="/consumer",
-    tags=["Consumer"]
-)
+# # consumer routes
+# app.include_router(
+#     consumer_router,
+#     prefix="/consumer",
+#     tags=["Consumer"]
+# )
 
-# producer routes
-app.include_router(
-    producer_router,
-    prefix="/producer",
-    tags=["Producer"]
-)
+# # producer routes
+# app.include_router(
+#     producer_router,
+#     prefix="/producer",
+#     tags=["Producer"]
+# )
 
-# food_item routes
-app.include_router(
-    food_item_router,
-    prefix="/food_item",
-    tags=["Food Item"]
-)
+# # food_item routes
+# app.include_router(
+#     food_item_router,
+#     prefix="/food_item",
+#     tags=["Food Item"]
+# )
 
 # review_for_consumer routes
 app.include_router(
     review_for_consumer_router,
     prefix="/review_for_consumer",
-    tags=["Review for Consumer"]
+    tags=["Review for Consumer"],
 )
+
+
+# @app.get("/review_for_consumer/testing")
+# async def get_test():
+#     return {"message": "hi"}

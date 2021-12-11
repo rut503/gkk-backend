@@ -9,6 +9,7 @@ config/__pycache__
 models/__pycache__
 routes/__pycache__
 schemas/__pycache__
+test/__pycache__
 
 # macOS
 .DS_Store
