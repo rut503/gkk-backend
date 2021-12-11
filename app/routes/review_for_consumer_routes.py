@@ -3,7 +3,6 @@ from typing import Optional, List
 from fastapi import APIRouter, HTTPException
 from bson import ObjectId
 from fastapi.params import Path, Query
-from pymongo.message import update
 from starlette import status
 
 from app.models.review_for_consumer_model import *

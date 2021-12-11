@@ -28,7 +28,7 @@ async def get_food_item( id: str = Path(..., min_length=24, max_length=24) ):
     if food_item is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, 
-            detail="Consumer not found with id " + id
+            detail="Food Item not found with id " + id
         )
     
     food_item = food_item_serializer(food_item)
@@ -82,7 +82,8 @@ async def post_food_item(food_item: food_item_post):
     food_item["date_created"] = datetime.utcnow()
 
     # converting id type from sting to ObjectId for database
-    food_item["producer_id"] = ObjectId(food_item["producer_id"])
+    producer_id_object_id = ObjectId(food_item["producer_id"])
+    food_item["producer_id"] = producer_id_object_id
 
     #############################################################################
     # TODO: Do something about photo upload here and get the URL to store in DB #
@@ -91,10 +92,25 @@ async def post_food_item(food_item: food_item_post):
 
     # inserting the food_item into DB
     inserted_food_item = food_item_collection.insert_one(food_item)
-    if not inserted_food_item.inserted_id:
+    inserted_food_item_id = inserted_food_item.inserted_id
+    if not inserted_food_item_id:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
             detail="Error while inserting"
+        )
+    
+    # update producer's food_items array field with new food_item id pushed into it
+    updated_producer = producer_collection.find_one_and_update(
+        { "_id": producer_id_object_id },
+        { "$push": { "food_items": inserted_food_item_id } },
+        return_document=ReturnDocument.AFTER    # this will return updated document after update happens 
+    )
+
+    # checking if the producer update was sucessful
+    if updated_producer is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="Producer to be updated not found with id " + id
         )
     
     # finding that inserted food_item 
@@ -174,12 +190,42 @@ async def delete_food_item( id: str = Path(..., min_length=24, max_length=24) ):
     # cascade deleting all the reviews that are associated with deleted food_item
     review_for_food_item_collection.delete_many({ "food_item_id": ObjectId(id)})
 
-    """ TODO:
-    delete food_item_id from
-        producer.food_items
-        producer.menu.*.*
-    """
-    # producer_food_items = producer_collection.find({})
+    # remove food_item id that was deleted from food_items field and menu.*.* fields in producer
+    producer_collection.update_one(
+        { "food_items": ObjectId(id) },
+        { "$pull": { 
+            "food_items": ObjectId(id),
+
+            "menu.sunday.breakfast": ObjectId(id),
+            "menu.sunday.lunch": ObjectId(id),
+            "menu.sunday.dinner": ObjectId(id),
+
+            "menu.monday.breakfast": ObjectId(id),
+            "menu.monday.lunch": ObjectId(id),
+            "menu.monday.dinner": ObjectId(id),
+
+            "menu.tuesday.breakfast": ObjectId(id),
+            "menu.tuesday.lunch": ObjectId(id),
+            "menu.tuesday.dinner": ObjectId(id),
+
+            "menu.wednesday.breakfast": ObjectId(id),
+            "menu.wednesday.lunch": ObjectId(id),
+            "menu.wednesday.dinner": ObjectId(id),
+
+            "menu.thursday.breakfast": ObjectId(id),
+            "menu.thursday.lunch": ObjectId(id),
+            "menu.thursday.dinner": ObjectId(id),
+
+            "menu.friday.breakfast": ObjectId(id),
+            "menu.friday.lunch": ObjectId(id),
+            "menu.friday.dinner": ObjectId(id),
+
+            "menu.saturday.breakfast": ObjectId(id),
+            "menu.saturday.lunch": ObjectId(id),
+            "menu.saturday.dinner": ObjectId(id),
+        }}
+    )
+
     
 
     return Response(status_code=status.HTTP_204_NO_CONTENT)
