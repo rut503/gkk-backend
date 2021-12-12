@@ -46,6 +46,11 @@ class Test_Get_By_Consumer_And_Producer:
      def test_get_by_valid_consumer_id_and_producer_id(self):
           response = client.get("/review_for_consumer", params={"consumer_id": consumer_id, "producer_id": producer_id})
           assert response.status_code == 200
+          
+          # Validating documents returned
+          response = response.json()
+          for document in response:
+               response_model = review_for_consumer_response(**document)
 
      @mark.parametrize("id, producer_or_consumer",[
           (producer_id, "producer_id"),
@@ -53,6 +58,16 @@ class Test_Get_By_Consumer_And_Producer:
      ])
      def test_get_by_consumer_id_and_producer_id_only_one(self, id, producer_or_consumer):
           response = client.get("/review_for_consumer", params={producer_or_consumer: id})
+          print(response.url)
+          assert response.status_code == 422
+          assert raises(RequestValidationError)
+
+     @mark.parametrize("producer_id, consumer_id",[
+          (producer_id, ""),
+          ("", consumer_id)
+     ])
+     def test_get_by_consumer_id_and_producer_id_one_is_empty(self, producer_id, consumer_id):
+          response = client.get("/review_for_consumer", params={"consumer_id": consumer_id, "producer_id": producer_id})
           assert response.status_code == 422
           assert raises(RequestValidationError)
 
