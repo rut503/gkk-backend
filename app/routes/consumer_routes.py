@@ -77,7 +77,7 @@ async def post_consumer(consumer: consumer_post):
     if not inserted_consumer.inserted_id:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
-            detail="Error while inserting"
+            detail="Error while inserting Consumer"
         )
     
     # finding that inserted consumer 

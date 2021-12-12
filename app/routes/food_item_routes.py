@@ -96,7 +96,7 @@ async def post_food_item(food_item: food_item_post):
     if not inserted_food_item_id:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
-            detail="Error while inserting"
+            detail="Error while inserting Food Item"
         )
     
     # update producer's food_items array field with new food_item id pushed into it

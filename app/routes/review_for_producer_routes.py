@@ -66,14 +66,14 @@ async def get_all_review_for_producer_by_user(
     # checking if find_review_query has any value
     if find_review_query:
         review_document_cursor = review_for_producer_collection.find( find_review_query )
-        serialized_review_document = reviews_for_producer_serializer(review_document_cursor)
+        serialized_review_documents = reviews_for_producer_serializer(review_document_cursor)
         # checking if review_for_producer were not found
-        if len(serialized_review_document) == 0:
+        if len(serialized_review_documents) == 0:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, 
                 detail="Review for Producer not found with passed in id(s)"
             )
-        return serialized_review_document
+        return serialized_review_documents
     else:
         raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, 
@@ -95,7 +95,7 @@ async def post_review_for_producer(review: review_for_producer_post):
             detail=review.consumer_id + " is not a valid ObjectId type for consumer_id"
         )
     
-    # checking if the producer and consumer with their passed in ids exists
+    # checking if the producer and consumer exists with their passed in ids 
     producer_count = producer_collection.count_documents({ "_id": ObjectId(review.producer_id) })
     if producer_count == 0:
         raise HTTPException(
@@ -122,7 +122,7 @@ async def post_review_for_producer(review: review_for_producer_post):
     if not result.inserted_id:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
-            detail="Error while inserting"
+            detail="Error while inserting Reveiw for Producer"
         )
 
     # Retrieving newly added document
@@ -143,8 +143,6 @@ async def update_review_for_producer( *, id: str = Path(..., min_length=24, max_
     # manually setting date_updated field to current datetime 
     review = review.dict()
     review["date_updated"] = datetime.utcnow()
-
-    print(review)
 
     # finding and updating review_for_producer
     updated_review = review_for_producer_collection.find_one_and_update(
