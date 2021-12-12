@@ -11,7 +11,6 @@
 #### Consumer
 
 - Find consumer
-
     - `GET : /consumer/{id}`
     - `GET : /consumer/phone_number/{phone_number}`
 
@@ -32,9 +31,7 @@
     ```
 
 - Update consumer
-
     - `PUT : /consumer/{id}`
-
     ```
         {
             first_name: "Juan",
@@ -135,7 +132,7 @@
             spicy: 2,
             allergy: [ "nuts", "gluten" ]
         }
-```
+    ```
 
 - Update food item
     - `PUT : /food_item/{id}`
@@ -221,7 +218,6 @@
 #### Review For Consumer
 
 - Find review for consumer
-
   - `GET : /review_for_consumer/{id}`
   - `GET : /review_for_consumer ? consumer_id="" & producer_id="" `
 
@@ -238,7 +234,7 @@
     ```
 
 - Update review for consumer
-  - `PUT : /review_for_consumer/{id}`
+    - `PUT : /review_for_consumer/{id}`
     ```
         {
             rating: 4,
@@ -316,22 +312,22 @@
 
 - Search for food items
     - `GET : /search/food_item ? ______ `
-    - Query Parameters
-    ```
-        time = [ "breakfast", "lunch", "dinner" ] (3 values, list)
-        diet_preference = [ "Low Carb",      "High Protein",
-                            "Low/No Sodium", "Diabetic",
-                            "Gluten Free",   "Lactose Free",
-                            "Vegetarian",    "Non-Vegetarian",
-                            "Paleo",         "Vegan",
-                            "Pescetarian",   "Eggitarian",
-                            "Nut Free",      "Other"
-                            ] (14 values, list)
-        min_price = 4.99 ($, float)
-        max_price = 14.99 ($, float)
-        consumer_coordinates = ??????
-        distance_radius = 8 (miles, float)
-        ratings = 4 (stars, int)
-        spicy_level = 3 (pepers, int)
-        chef_name = "ritu shah" (chef, str)
-    ```
+        - Query Parameters
+        ```
+            time = [ "breakfast", "lunch", "dinner" ] (3 values, list)
+            diet_preference = [ "Low Carb",      "High Protein",
+                                "Low/No Sodium", "Diabetic",
+                                "Gluten Free",   "Lactose Free",
+                                "Vegetarian",    "Non-Vegetarian",
+                                "Paleo",         "Vegan",
+                                "Pescetarian",   "Eggitarian",
+                                "Nut Free",      "Other"
+                                ] (14 values, list)
+            min_price = 4.99 ($, float)
+            max_price = 14.99 ($, float)
+            consumer_coordinates = ??????
+            distance_radius = 8 (miles, float)
+            ratings = 4 (stars, int)
+            spicy_level = 3 (pepers, int)
+            chef_name = "ritu shah" (chef, str)
+        ```
