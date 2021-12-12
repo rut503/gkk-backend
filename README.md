@@ -218,8 +218,8 @@
 #### Review For Consumer
 
 - Find review for consumer
-  - `GET : /review_for_consumer/{id}`
-  - `GET : /review_for_consumer ? consumer_id="" & producer_id="" `
+    - `GET : /review_for_consumer/{id}`
+    - `GET : /review_for_consumer ? consumer_id="" & producer_id="" `
 
 - Create new review for consumer
     - `POST : /review_for_consumer/`
@@ -322,7 +322,7 @@
                                 "Paleo",         "Vegan",
                                 "Pescetarian",   "Eggitarian",
                                 "Nut Free",      "Other"
-                                ] (14 values, list)
+                              ] (14 values, list)
             min_price = 4.99 ($, float)
             max_price = 14.99 ($, float)
             consumer_coordinates = ??????
