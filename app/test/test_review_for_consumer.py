@@ -1,4 +1,5 @@
 from datetime import time
+from logging import error
 from _pytest.mark import param
 from _pytest.monkeypatch import resolve
 from _pytest.python_api import raises
@@ -38,6 +39,12 @@ class Test_Get_By_Id:
           assert response.status_code == 422
           assert raises(RequestValidationError)
 
+     # Invalid Id
+     def test_get_by_invalid_id(self):
+          response = client.get("/review_for_consumer/xxxxxxxxxxxxxxxxxxxxxxxx")
+          assert response.status_code == 400
+          assert raises(HTTPException)
+
      # Empty
      def test_get_by_empty_id(self):
           response = client.get("/review_for_consumer/")
@@ -58,6 +65,7 @@ class Test_Get_By_Consumer_And_Producer:
           (producer_id, "producer_id"),
           (consumer_id, "consumer_id")
      ])
+     # fix this test, you can only pass one producer or consumer 
      def test_get_by_consumer_id_and_producer_id_only_one(self, id, producer_or_consumer):
           response = client.get("/review_for_consumer", params={producer_or_consumer: id})
           print(response.url)
@@ -66,12 +74,15 @@ class Test_Get_By_Consumer_And_Producer:
 
      @mark.parametrize("producer_id, consumer_id",[
           (producer_id, ""),
-          ("", consumer_id)
+          ("", consumer_id),
+          ("", "")
      ])
      def test_get_by_consumer_id_and_producer_id_one_is_empty(self, producer_id, consumer_id):
           response = client.get("/review_for_consumer", params={"consumer_id": consumer_id, "producer_id": producer_id})
           assert response.status_code == 422
           assert raises(RequestValidationError)
+
+     # send a valid id which returns an empty list
 
 rating = 2
 title = "This is a test for posting a review for consumer"
@@ -105,14 +116,14 @@ class Test_Post_Review_For_Consumer:
 
      @mark.parametrize("producer_id, consumer_id",[
           (producer_id, ""),
-          ("", consumer_id)
+          ("", consumer_id),
+          ("", "")
      ])
      def test_post_empty(self, producer_id, consumer_id):
           payload = {"consumer_id": consumer_id, "producer_id": producer_id, "rating": rating, "title": title, "description": description}
-          with raises(errors.InvalidId):
-               response = client.post("review_for_consumer/", json=payload)
-               
-          #assert response.status_code == 422
+          response = client.post("review_for_consumer/", json=payload)
+          assert raises(RequestValidationError)
+          assert response.status_code == 422
          
 # class Test_Review_for_Consumer:
 #      # Get operation via id. Validating status code
