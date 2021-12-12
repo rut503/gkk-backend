@@ -81,16 +81,6 @@ async def get_all_review_for_food_item_by_user(
             )
 
 
-'''
-    - POST : `/review_for_food_item/`
-        {
-            consumer_id: ObjectId,
-            food_id: ObjectId,
-            rating: 4,
-            title: "Good food",
-            description: "very good food",
-        }
-'''
 @review_for_food_item_router.post("/", response_model=review_for_food_item_response, status_code=status.HTTP_201_CREATED)
 async def post_review_for_food_item(review: review_for_food_item_post):
     # checking if passed in food_item_id and consumer_id is valid ObjectId type
@@ -141,14 +131,6 @@ async def post_review_for_food_item(review: review_for_food_item_post):
     return inserted_review
 
 
-'''
-    - `PUT : /review_for_food_item/{id}`
-        {
-            rating: 4,
-            title: "Pleasure doing business with you",
-            description: "was on time",
-        }
-'''
 @review_for_food_item_router.put("/{id}", response_model=review_for_food_item_response, status_code=status.HTTP_200_OK)
 async def update_review_for_food_item( *, id: str = Path(..., min_length=24, max_length=24), review: review_for_food_item_put ):
     # checking if passed in id is valid ObjectId type
@@ -181,9 +163,6 @@ async def update_review_for_food_item( *, id: str = Path(..., min_length=24, max
     return serialized_updated_review
 
 
-'''
-    - `DELETE : /review_for_food_item/{id}`
-'''
 @review_for_food_item_router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_review_for_food_item( id: str = Path(..., min_length=24, max_length=24) ):
     # checking if passed in id is valid ObjectId type

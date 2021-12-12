@@ -10,8 +10,8 @@ class review_for_producer_put(review_for_producer_base):
     pass
 
 class review_for_producer_post(review_for_producer_base):
-    consumer_id: str = Field(..., min_length=24, max_length=24)
     producer_id: str = Field(..., min_length=24, max_length=24)
+    consumer_id: str = Field(..., min_length=24, max_length=24)
 
 class review_for_producer_response(review_for_producer_post):
     id: str = Field(..., min_length=24, max_length=24)

@@ -65,7 +65,7 @@ async def get_all_review_for_producer_by_user(
 
     # checking if find_review_query has any value
     if find_review_query:
-        review_document_cursor = review_for_producer_collection.find( find_review_query )
+        review_document_cursor = review_for_producer_collection.find(find_review_query)
         serialized_review_documents = reviews_for_producer_serializer(review_document_cursor)
         # checking if review_for_producer were not found
         if len(serialized_review_documents) == 0:
