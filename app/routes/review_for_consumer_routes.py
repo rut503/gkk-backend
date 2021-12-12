@@ -36,10 +36,7 @@ async def get_review_for_consumer_by_id( id: str = Path(..., min_length=24, max_
 
 # Get a all reviews between a consumer and producer
 @review_for_consumer_router.get("", response_model=List[review_for_consumer_response], status_code=status.HTTP_200_OK)
-async def get_all_review_for_consumer_by_user(
-    consumer_id: Optional[str] = Query(None, min_length=24, max_length=24),
-    producer_id: Optional[str] = Query(None, min_length=24, max_length=24),
-) -> list:
+async def get_all_review_for_consumer_by_user(consumer_id: str = Query(..., min_length=24, max_length=24),producer_id: str = Query(..., min_length=24, max_length=24)) -> list:
 
     # Find reviews with matching producer_id and consumer_id
     if consumer_id is not None and producer_id is not None:
