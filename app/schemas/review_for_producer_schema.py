@@ -1,6 +1,6 @@
 from pymongo.cursor import Cursor
 
-def review_for_consumer_serializer(review_document: dict) -> dict:
+def review_for_producer_serializer(review_document: dict) -> dict:
     return{
         "id": str(review_document["_id"]),
         "consumer_id": str(review_document["consumer_id"]),
@@ -12,5 +12,5 @@ def review_for_consumer_serializer(review_document: dict) -> dict:
         "date_updated": review_document["date_updated"]
     }
 
-def reviews_for_consumer_serializer(review_document_cursor: Cursor) -> list:
-    return [ review_for_consumer_serializer(document) for document in review_document_cursor ]
+def reviews_for_producer_serializer(review_document_cursor: Cursor) -> list:
+    return [ review_for_producer_serializer(document) for document in review_document_cursor ]

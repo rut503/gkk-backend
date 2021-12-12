@@ -297,7 +297,7 @@
     ```
 
 - Delete review for producer
-  - `DELETE : /review_for_producer/{id}`
+    - `DELETE : /review_for_producer/{id}`
 
 #### Review For Food
 

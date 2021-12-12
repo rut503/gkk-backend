@@ -1,8 +1,6 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import datetime
-
-from pydantic.fields import Field
 
 class review_for_consumer_post(BaseModel):
     consumer_id: str
