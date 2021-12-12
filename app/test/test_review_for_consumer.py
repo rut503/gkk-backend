@@ -4,6 +4,7 @@ from _pytest.python_api import raises
 from bson import ObjectId
 from fastapi.testclient import TestClient
 from fastapi.exceptions import HTTPException, RequestValidationError, WebSocketRequestValidationError
+from pymongo import response
 from starlette import status
 from app.main import app
 from app.config.database import review_for_consumer_collection
@@ -71,6 +72,25 @@ class Test_Get_By_Consumer_And_Producer:
           assert response.status_code == 422
           assert raises(RequestValidationError)
 
+class Test_Post_Review_For_Consumer:
+     def test_post(self):
+          rating = 2
+          title = "This is a test for posting a review for consumer"
+          description = "This is the test description"
+          payload = {"consumer_id": consumer_id, "producer_id": producer_id, "rating": rating, "title": title, "description": description}
+
+          response = client.post("review_for_consumer/", json=payload)
+          
+          response_status_code = response.status_code
+          response = review_for_consumer_response(**(response.json()))
+          response = response.dict()
+
+          assert response_status_code == 201
+          assert response["producer_id"] == producer_id
+          assert response["consumer_id"] == consumer_id
+          assert response["rating"] == rating
+          assert response["title"] == title
+          assert response["description"] == description
 # class Test_Review_for_Consumer:
 #      # Get operation via id. Validating status code
 #      @mark.parametrize("id, status, exception", [
