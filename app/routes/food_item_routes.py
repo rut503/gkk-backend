@@ -14,7 +14,7 @@ food_item_router = APIRouter()
 
 
 # get data
-@food_item_router.get("/{id}", response_model=food_item_response)
+@food_item_router.get("/{id}", response_model=food_item_response, status_code=status.HTTP_200_OK)
 async def get_food_item( id: str = Path(..., min_length=24, max_length=24) ):
     # checking if passed in id is valid ObjectId type
     if not ObjectId.is_valid(id):
@@ -35,7 +35,7 @@ async def get_food_item( id: str = Path(..., min_length=24, max_length=24) ):
     return food_item
 
 
-@food_item_router.get("", response_model=List[food_item_response])
+@food_item_router.get("", response_model=List[food_item_response], status_code=status.HTTP_200_OK)
 async def get_food_item_by_producer_id( producer_id: str = Query(..., min_length=24, max_length=24) ):
     # checking if passed in producer_id is valid ObjectId type
     if not ObjectId.is_valid(producer_id):
@@ -49,7 +49,7 @@ async def get_food_item_by_producer_id( producer_id: str = Query(..., min_length
     food_items = food_items_serializer(food_items)
 
     # checking if any food_items were not found
-    if not len(food_items):
+    if len(food_items) == 0:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, 
             detail="Food Items not found with producer_id " + producer_id
@@ -96,7 +96,7 @@ async def post_food_item(food_item: food_item_post):
     if not inserted_food_item_id:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
-            detail="Error while inserting"
+            detail="Error while inserting Food Item"
         )
     
     # update producer's food_items array field with new food_item id pushed into it
@@ -128,7 +128,7 @@ async def post_food_item(food_item: food_item_post):
 
 
 # put data
-@food_item_router.put("/{id}", response_model=food_item_response)
+@food_item_router.put("/{id}", response_model=food_item_response, status_code=status.HTTP_200_OK)
 async def put_food_item( *, id: str = Path(..., min_length=24, max_length=24), food_item: food_item_put ):
     # checking if passed in id is valid ObjectId type
     if not ObjectId.is_valid(id):
@@ -225,7 +225,5 @@ async def delete_food_item( id: str = Path(..., min_length=24, max_length=24) ):
             "menu.saturday.dinner": ObjectId(id),
         }}
     )
-
-    
 
     return Response(status_code=status.HTTP_204_NO_CONTENT)

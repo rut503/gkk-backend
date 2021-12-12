@@ -18,7 +18,7 @@ from app.schemas.consumer_schema import consumer_serializer
 consumer_router = APIRouter()
 
 # get data
-@consumer_router.get("/{id}", response_model=consumer_response)
+@consumer_router.get("/{id}", response_model=consumer_response, status_code=status.HTTP_200_OK)
 async def get_consumer_by_id( id: str = Path(..., min_length=24, max_length=24) ):
     # checking if passed in id is valid ObjectId type
     if not ObjectId.is_valid(id):
@@ -37,7 +37,7 @@ async def get_consumer_by_id( id: str = Path(..., min_length=24, max_length=24) 
     consumer = consumer_serializer(consumer)
     return consumer
 
-@consumer_router.get("/phone_number/{phone_number}", response_model=consumer_response)
+@consumer_router.get("/phone_number/{phone_number}", response_model=consumer_response, status_code=status.HTTP_200_OK)
 async def get_consumer_by_phone_number( phone_number: str = Path(..., min_length=10, max_length=15, regex="[0-9]{10,15}") ):
     # finding consumer that matches passed in phone_number
     consumer = consumer_collection.find_one({ "phone_number": phone_number })
@@ -77,7 +77,7 @@ async def post_consumer(consumer: consumer_post):
     if not inserted_consumer.inserted_id:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
-            detail="Error while inserting"
+            detail="Error while inserting Consumer"
         )
     
     # finding that inserted consumer 
@@ -94,7 +94,7 @@ async def post_consumer(consumer: consumer_post):
 
 
 # put data
-@consumer_router.put("/{id}", response_model=consumer_response)
+@consumer_router.put("/{id}", response_model=consumer_response, status_code=status.HTTP_200_OK)
 async def put_consumer( *, id: str = Path(..., min_length=24, max_length=24), consumer: consumer_put ):
     # checking if passed in id is valid ObjectId type
     if not ObjectId.is_valid(id):

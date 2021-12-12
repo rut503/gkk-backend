@@ -280,11 +280,11 @@
 #### Review For Food
 
 - Find review for food
-    - `GET : /review_for_food/{id}`
-    - `GET : /review_for_food ? consumer_id="" & food_item_id="" `
+    - `GET : /review_for_food_item/{id}`
+    - `GET : /review_for_food_item ? consumer_id="" & food_item_id="" `
 
 - Create new review for food
-    - POST : `/review_for_food/`
+    - POST : `/review_for_food_item/`
     ```
         {
             consumer_id: ObjectId,
@@ -296,7 +296,7 @@
     ```
 
 - Update review for food
-    - `PUT : /review_for_food/{id}`
+    - `PUT : /review_for_food_item/{id}`
     ```
         {
             rating: 4,
@@ -306,7 +306,7 @@
     ```
 
 - Delete review for food
-    - `DELETE : /review_for_food/{id}`
+    - `DELETE : /review_for_food_item/{id}`
 
 #### Special Routes
 
