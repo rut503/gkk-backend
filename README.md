@@ -52,9 +52,12 @@
 #### Producer
 
 - Find producer
-    - `GET : /producer/{id}`
+    - `GET : /producer/{id} ? fields=[]`
+        - query parameter values
+        - fields: "first_name", "last_name", "phone_number", "address", "food_items", "rating", "menu", "date_created", "date_updated"
     - `GET : /producer/phone_number/{phone_number}`
-    - `GET : /producer/filter ? _______` 
+    - WIP
+    - `GET : /producer/filter ? _______`
         - query parameters
             - consumer_coordinates = ??????
             - distance_radius = 8 (miles, float)
@@ -75,8 +78,8 @@
         }
     ```
 
-- Update producer
-    - `PUT : /producer/{id}`
+- Update producer address
+    - `PUT : /producer/{id}/address`
     ```
         {
             first_name: "Juan",
@@ -90,48 +93,23 @@
             }
         }
     ```
-    - `PUT : /producer/{id}/menu`
+- Update add menu item
+    - `PUT : /poducer/{id}/menu/{day}/{meal_type}`
+        - query parameter values
+            - day : "sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"
+            - meal_type : "breakfast", "lunch", "dinner"
+        - body
     ```
         {
-            menu: {
-                sunday: {
-                    breakfast: [ food_item_id ],
-                    lunch: [ food_item_id ],
-                    dinner: [ food_item_id ]
-                },
-                monday: {
-                    breakfast: [ food_item_id ],
-                    lunch: [ food_item_id ],
-                    dinner: [ food_item_id ]
-                },
-                tuesday: {
-                    breakfast: [ food_item_id ],
-                    lunch: [ food_item_id ],
-                    dinner: [ food_item_id ]
-                },
-                wednesday: {
-                    breakfast: [ food_item_id ],
-                    lunch: [ food_item_id ],
-                    dinner: [ food_item_id ]
-                },
-                thursday: {
-                    breakfast: [ food_item_id ],
-                    lunch: [ food_item_id ],
-                    dinner: [ food_item_id ]
-                },
-                friday: {
-                    breakfast: [ food_item_id ],
-                    lunch: [ food_item_id ],
-                    dinner: [ food_item_id ]
-                },
-                saturday: {
-                    breakfast: [ food_item_id ],
-                    lunch: [ food_item_id ],
-                    dinner: [ food_item_id ]
-                }
-            }
+            food_array: [food_ObjectId1 , food_ObjectId2, ...]
         }
     ```
+- Update remove menu item
+    - `PUT : /poducer/{id}/menu/{day}/{meal_type}/{menu_id}`
+        - query parameter values
+            - day : "sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"
+            - meal_type : "breakfast", "lunch", "dinner"
+
 - Delete producer
     - `DELETE : /producer/{id}`
 
@@ -266,7 +244,7 @@
     ```
 
 - Delete review for consumer
-  - `DELETE : /review_for_consumer/{id}`
+    - `DELETE : /review_for_consumer/{id}`
 
 #### Review For Producer
 
@@ -297,7 +275,7 @@
     ```
 
 - Delete review for producer
-  - `DELETE : /review_for_producer/{id}`
+    - `DELETE : /review_for_producer/{id}`
 
 #### Review For Food
 
@@ -332,7 +310,7 @@
 
 #### Special Routes
 
-- Search for food items 
+- Search for food items
     - `GET : /search/food_item ? ______ `
         - Query Parameters
         ```
