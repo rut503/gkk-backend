@@ -1,7 +1,8 @@
+from datetime import time
 from _pytest.mark import param
 from _pytest.monkeypatch import resolve
 from _pytest.python_api import raises
-from bson import ObjectId
+from bson import ObjectId, errors
 from fastapi.testclient import TestClient
 from fastapi.exceptions import HTTPException, RequestValidationError, WebSocketRequestValidationError
 from pymongo import response
@@ -72,15 +73,15 @@ class Test_Get_By_Consumer_And_Producer:
           assert response.status_code == 422
           assert raises(RequestValidationError)
 
+rating = 2
+title = "This is a test for posting a review for consumer"
+description = "This is the test description"
+
 class Test_Post_Review_For_Consumer:
      def test_post(self):
-          rating = 2
-          title = "This is a test for posting a review for consumer"
-          description = "This is the test description"
           payload = {"consumer_id": consumer_id, "producer_id": producer_id, "rating": rating, "title": title, "description": description}
-
           response = client.post("review_for_consumer/", json=payload)
-          
+
           response_status_code = response.status_code
           response = review_for_consumer_response(**(response.json()))
           response = response.dict()
@@ -91,6 +92,28 @@ class Test_Post_Review_For_Consumer:
           assert response["rating"] == rating
           assert response["title"] == title
           assert response["description"] == description
+     
+     @mark.parametrize("id, producer_or_consumer",[
+          (producer_id, "producer_id"),
+          (consumer_id, "consumer_id")
+     ])
+     def test_post_only_one_id(self, id, producer_or_consumer):
+          payload = {producer_or_consumer: id, "rating": rating, "title": title, "description": description}
+          response = client.post("review_for_consumer/", json=payload)
+          assert response.status_code == 422
+          assert raises(RequestValidationError)
+
+     @mark.parametrize("producer_id, consumer_id",[
+          (producer_id, ""),
+          ("", consumer_id)
+     ])
+     def test_post_empty(self, producer_id, consumer_id):
+          payload = {"consumer_id": consumer_id, "producer_id": producer_id, "rating": rating, "title": title, "description": description}
+          with raises(errors.InvalidId):
+               response = client.post("review_for_consumer/", json=payload)
+               
+          #assert response.status_code == 422
+         
 # class Test_Review_for_Consumer:
 #      # Get operation via id. Validating status code
 #      @mark.parametrize("id, status, exception", [
