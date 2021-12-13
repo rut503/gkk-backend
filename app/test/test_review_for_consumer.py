@@ -14,35 +14,35 @@ from pytest import mark, raises
 from app.models.review_for_consumer_model import review_for_consumer_response
 client = TestClient(app)
 
-valid_id         = "61b5d4c7ca41dca5232ac59b"
-unavailable_id   = "111111111111111111111111"
-invalid_id       = "xxxxxxxxxxxxxxxxxxxxxxxx"
-unprocessable_id = "1111111111111111111111111"
-consumer_id      = "61b5d4b3ca41dca5232ac579"
-producer_id      = "61b5d4b8ca41dca5232ac57c"
+VALID_ID         = "61b6f11a41e7064d92e23641"
+UNAVAILABLE_ID   = "111111111111111111111111"
+INVALID_ID       = "xxxxxxxxxxxxxxxxxxxxxxxx"
+UNPROCESSABLE_ID = "1111111111111111111111111"
+CONSUMER_ID      = "61b6f10641e7064d92e2361e"
+PRODUCER_ID      = "61b6f10841e7064d92e23621"
 
 class Test_Get_By_Id:
      # Successful call
      def test_get_by_id_in_db(self):
-          response = client.get("/review_for_consumer/" + valid_id)
+          response = client.get("/review_for_consumer/" + VALID_ID)
           response_model = review_for_consumer_response(**response.json())
           assert response.status_code == 200
 
      # Unavailable document
      def test_get_by_id_not_in_db(self):
-          response = client.get("/review_for_consumer/" + unavailable_id)
+          response = client.get("/review_for_consumer/" + UNAVAILABLE_ID)
           assert response.status_code == 404
           assert raises(HTTPException)
 
      # Unprocessible id param
      def test_get_by_unprocessable_id(self):
-          response = client.get("/review_for_consumer/" + unprocessable_id)
+          response = client.get("/review_for_consumer/" + UNPROCESSABLE_ID)
           assert response.status_code == 422
           assert raises(RequestValidationError)
 
      # Invalid Id
      def test_get_by_invalid_id(self):
-          response = client.get("/review_for_consumer/" + invalid_id)
+          response = client.get("/review_for_consumer/" + INVALID_ID)
           assert response.status_code == 400
           assert raises(HTTPException)
 
@@ -54,7 +54,7 @@ class Test_Get_By_Id:
 
 class Test_Get_By_Consumer_And_Producer:
      def test_get_by_valid_consumer_id_and_producer_id(self):
-          response = client.get("/review_for_consumer", params={"consumer_id": consumer_id, "producer_id": producer_id})
+          response = client.get("/review_for_consumer", params={"consumer_id": CONSUMER_ID, "producer_id": PRODUCER_ID})
           assert response.status_code == 200
           
           # Validating documents returned
@@ -67,13 +67,13 @@ class Test_Get_By_Consumer_And_Producer:
           ("consumer_id")
      ])
      def test_get_by_consumer_id_and_producer_id_no_reviews(self, producer_or_consumer):
-          response = client.get("/review_for_consumer", params={producer_or_consumer: valid_id})
+          response = client.get("/review_for_consumer", params={producer_or_consumer: VALID_ID})
           assert response.status_code == 404 
 
      # Get reviews from a producer_id or a consumer_id
      @mark.parametrize("id, producer_or_consumer",[
-          (producer_id, "producer_id"),
-          (consumer_id, "consumer_id")
+          (PRODUCER_ID, "producer_id"),
+          (CONSUMER_ID, "consumer_id")
      ])
      def test_get_by_consumer_id_and_producer_id_only_one(self, id, producer_or_consumer):
           response = client.get("/review_for_consumer", params={producer_or_consumer: id})
@@ -86,8 +86,8 @@ class Test_Get_By_Consumer_And_Producer:
           
      # Field validation check
      @mark.parametrize("producer_id, consumer_id",[
-          (producer_id, ""),
-          ("", consumer_id),
+          (PRODUCER_ID, ""),
+          ("", CONSUMER_ID),
           ("", ""),
      ])
      def test_get_by_consumer_id_and_producer_id_one_is_empty(self, producer_id, consumer_id):
@@ -97,7 +97,7 @@ class Test_Get_By_Consumer_And_Producer:
 
      # Valid id check
      def test_get_by_consumer_id_and_producer_id_invalid_ids(self):
-          response = client.get("/review_for_consumer", params={"consumer_id": invalid_id, "producer_id": invalid_id})
+          response = client.get("/review_for_consumer", params={"consumer_id": INVALID_ID, "producer_id": INVALID_ID})
           assert response.status_code == 400
           assert raises(HTTPException)
 
@@ -108,7 +108,7 @@ description = "This is the test description"
 
 class Test_Post_Review_For_Consumer:
      def test_post(self):
-          payload = {"consumer_id": consumer_id, "producer_id": producer_id, "rating": rating, "title": title, "description": description}
+          payload = {"consumer_id": CONSUMER_ID, "producer_id": PRODUCER_ID, "rating": rating, "title": title, "description": description}
           response = client.post("review_for_consumer/", json=payload)
 
           response_status_code = response.status_code
@@ -116,15 +116,15 @@ class Test_Post_Review_For_Consumer:
           response = response.dict()
 
           assert response_status_code == 201
-          assert response["producer_id"] == producer_id
-          assert response["consumer_id"] == consumer_id
+          assert response["producer_id"] == PRODUCER_ID
+          assert response["consumer_id"] == CONSUMER_ID
           assert response["rating"] == rating
           assert response["title"] == title
           assert response["description"] == description
      
      @mark.parametrize("id, producer_or_consumer",[
-          (producer_id, "producer_id"),
-          (consumer_id, "consumer_id")
+          (PRODUCER_ID, "producer_id"),
+          (CONSUMER_ID, "consumer_id")
      ])
      def test_post_only_one_id(self, id, producer_or_consumer):
           payload = {producer_or_consumer: id, "rating": rating, "title": title, "description": description}
@@ -133,8 +133,8 @@ class Test_Post_Review_For_Consumer:
           assert raises(RequestValidationError)
 
      @mark.parametrize("producer_id, consumer_id",[
-          (producer_id, ""),
-          ("", consumer_id),
+          (PRODUCER_ID, ""),
+          ("", CONSUMER_ID),
           ("", "")
      ])
      def test_post_empty(self, producer_id, consumer_id):
