@@ -1,18 +1,10 @@
-from pydantic import BaseModel, Field, HttpUrl, EmailStr
+from pydantic import BaseModel, Field, HttpUrl
 from datetime import datetime
 from typing import List
 from enum import Enum
 
-from app.models.food_item_model import diet_preference_enum
+from app.models.food_item_model import food_item_base
 
-'''
-    items.*.quantity : 1 - 99
-    order_total : 0.01 - 999.99 float
-    status : drop down menu
-    meal_time : drop down menu
-    order_due_datetime : ISO date
-    message_for_producer : 600 character string
-'''
 class status_enum(str, Enum):
     pending = "pending"
     accepted = "accepted"
@@ -26,24 +18,16 @@ class meal_time_enum(str, Enum):
     lunch = "lunch"
     dinner = "dinner"
 
-class food_item_base(BaseModel):
-    diet_preference: List[diet_preference_enum]
-    description: str = Field(..., min_length=1, max_length=1500)
-    price: float = Field(..., ge=0.01, le=999.99)
-    name: str = Field(..., min_length=1, max_length=200)
-    portion_size: float = Field(..., ge=0.01, le=999.99)
-    spicy: int = Field(..., ge=0, le=3)
-    allergy: List[str] = Field(..., max_items=100)
+class item_base(food_item_base):
+    photo: HttpUrl
+    rating: float = Field(..., ge=0.00, le=5.00)
+    quantity: int = Field(..., ge=1, le=50)
 
-class item_base(BaseModel):
-    food_item: food_item_base
-    quantity: int = Field(..., ge=1, le=99)
-
-class active_order_base(BaseModel):
+class active_order_response(BaseModel):
     id: str = Field(..., min_length=24, max_length=24)
     consumer_id: str = Field(..., min_length=24, max_length=24)
     producer_id: str = Field(..., min_length=24, max_length=24)
-    items: List[item_base] = NOT_SURE
+    items: List[item_base] = Field(..., min_items=1, max_items=50)
     total_price: float = Field(..., ge=0.01, le=999.99)
     status: status_enum
     meal_time: meal_time_enum

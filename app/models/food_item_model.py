@@ -20,13 +20,13 @@ class diet_preference_enum(str, Enum):
     other = "Other"
 
 class food_item_base(BaseModel):
-    diet_preference: List[diet_preference_enum]
+    diet_preference: List[diet_preference_enum] = Field(..., min_items=1, max_items=14)
     description: str = Field(..., min_length=1, max_length=1500)
     price: float = Field(..., ge=0.01, le=999.99)
     name: str = Field(..., min_length=1, max_length=200)
     portion_size: float = Field(..., ge=0.01, le=999.99)
     spicy: int = Field(..., ge=0, le=3)
-    allergy: List[str] = Field(..., max_items=100)
+    allergy: List[str] = Field(..., min_items=0, max_items=50)
 
 class food_item_put(food_item_base):
     pass
