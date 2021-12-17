@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, HttpUrl, EmailStr
 from datetime import datetime
 from typing import List, Optional
 from enum import Enum
@@ -16,23 +16,14 @@ class address_post(BaseModel):
     state: str = Field(..., min_length=1, max_length=25)
     zip_code: str = Field(..., min_length=2, max_length=12)
 
-class filter_fields(BaseModel):
-    first_name: Optional[bool] = True
-    last_name: Optional[bool] = True
-    phone_number: Optional[bool] = True
-    address: Optional[bool] = True
-    food_items: Optional[bool] = True
-    rating: Optional[bool] = True
-    active_orders: Optional[bool] = True
-    menu: Optional[bool] = True
-    date_created: Optional[bool] = True
-    date_updated: Optional[bool] = True
-
 class producer_response(BaseModel):
     id: Optional[str] = None
     first_name: Optional[str] = None 
     last_name: Optional[str] = None
     phone_number: Optional[str] = None
+    email_address: Optional[EmailStr] = None
+    bio: Optional[str] = None
+    photo: Optional[HttpUrl] = None
     address: Optional[address_response]
     food_items: Optional[List[str]] = None
     rating: Optional[float] = None
@@ -45,6 +36,9 @@ class producer_post(BaseModel):
     first_name: str = Field(..., min_length=1, max_length=50)
     last_name : str = Field(..., min_length=1, max_length=50)
     phone_number: str = Field(..., min_length=10, max_length=15, regex="[0-9]{10,15}")
+    email_address: EmailStr
+    bio: str = Field(..., min_length=0, max_length=2000)
+    photo: HttpUrl
     address: address_post
 
 # Used in insert and update calls for menu subdocument
