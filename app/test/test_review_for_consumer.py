@@ -10,12 +10,12 @@ from pytest import mark, raises
 from app.models.review_for_consumer_model import review_for_consumer_response
 client = TestClient(app)
 
-VALID_ID        = "61b6f11a41e7064d92e23641"
+VALID_ID          = "61b6f11a41e7064d92e23641"
 UNAVAILABLE_ID    = "111111111111111111111111"
 INVALID_OBJECT_ID = "xxxxxxxxxxxxxxxxxxxxxxxx"
-TOO_LONG_ID      = "1111111111111111111111111"
-CONSUMER_ID      = "61b6f10641e7064d92e2361e"
-PRODUCER_ID      = "61b6f10841e7064d92e23621"
+TOO_LONG_ID       = "1111111111111111111111111"
+CONSUMER_ID       = "61b6f10641e7064d92e2361e"
+PRODUCER_ID       = "61b6f10841e7064d92e23621"
 
 class Test_Get_By_Id:
     # Successful call
@@ -184,13 +184,16 @@ class Test_Put_Review_For_Consumer:
     # Fixture to add a document to modify
     @fixture
     def post_user_id(self):   
-
         payload = {"consumer_id": ObjectId(CONSUMER_ID), "producer_id": ObjectId(PRODUCER_ID), "rating": "2", "title": "This a post sent from Test_Put_Review_For_Consumer", "description": "This is the description", "date_created": datetime.utcnow(), "date_updated": datetime.utcnow()}
         post_id = review_for_consumer_collection.insert_one(payload).inserted_id
         yield str(post_id)
         review_for_consumer_collection.find_one_and_delete({"_id": ObjectId(post_id)})
 
+    @fixture
+    def get_payload(self):
+        return {"rating": "5", "title": "New updated review", "description": "New udpated description"}
 
+    # Successful update
     def test_put(self, post_user_id):
         new_rating = 5
         new_title = "This a update post sent from Test_Put_Review_For_Consumer"
@@ -206,14 +209,39 @@ class Test_Put_Review_For_Consumer:
         assert response["rating"] == new_rating
         assert response["title"] == new_title
         assert response["description"] == new_description
+
+
+    # Invald id
+    def test_put_invalid_id(self, get_payload):
+        response = client.put("/review_for_consumer/" + INVALID_OBJECT_ID, json=get_payload)
+        assert response.status_code == 400
+
+    # Id doesn't exist in db
+    def test_put_unavailable_id(sel, get_payload):
+        response = client.put("/review_for_consumer/" + UNAVAILABLE_ID, json=get_payload)
+        assert response.status_code == 404
+
+    # Empty id
+    def test_put_unavailable_id(sel, get_payload):
+        response = client.put("/review_for_consumer/" + "", json=get_payload)
+        assert response.status_code == 405
         
-# class Test_Review_for_Consumer:
-#     # Get operation via id. Validating status code
-#     @mark.parametrize("id, status, exception", [
-#     (valid_id, 200, None),
-#     (TOO_LONG_ID, 422, RequestValidationError),
-#     (invalid_id, 404, HTTPException)])
-#     def test_get_review_for_consumer_by_id(self, id, status, exception):
-#         response = client.get("/review_for_consumer/"+id)
-#         assert response.status_code == status
-#         assert raises(exception)
+class Test_Delete_Review_For_Consumer:
+    @fixture
+    def post_user_id(self):   
+        payload = {"consumer_id": ObjectId(CONSUMER_ID), "producer_id": ObjectId(PRODUCER_ID), "rating": "2", "title": "This a post sent from Test_Put_Review_For_Consumer", "description": "This is the description", "date_created": datetime.utcnow(), "date_updated": datetime.utcnow()}
+        post_id = review_for_consumer_collection.insert_one(payload).inserted_id
+        yield str(post_id)
+        review_for_consumer_collection.find_one_and_delete({"_id": ObjectId(post_id)})
+
+    def test_delete_user_id(self, post_user_id):
+        response = client.delete("/review_for_consumer/" + post_user_id)
+        assert response.status_code == 204
+
+    def test_delete_user_invalid_id(self):
+        response = client.delete("/review_for_consumer/" + INVALID_OBJECT_ID)
+        assert response.status_code == 400
+
+    def test_delete_user_unavailable_id(self):
+        response = client.delete("/review_for_consumer/" + UNAVAILABLE_ID)
+        assert response.status_code == 404
