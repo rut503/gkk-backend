@@ -17,10 +17,31 @@ TOO_LONG_ID       = "1111111111111111111111111"
 CONSUMER_ID       = "61b6f10641e7064d92e2361e"
 PRODUCER_ID       = "61b6f10841e7064d92e23621"
 
+# Creates a test document and returns the new document. Deletes the document at the end. 
+@fixture
+def get_posted_review():   
+    payload = {"consumer_id": ObjectId(CONSUMER_ID), "producer_id": ObjectId(PRODUCER_ID), "rating": "2", "title": "This a test post", "description": "This is the test description", "date_created": datetime.utcnow(), "date_updated": datetime.utcnow()}
+    post_id = review_for_consumer_collection.insert_one(payload).inserted_id
+    post_doc = review_for_consumer_collection.find_one({"_id": post_id})
+    post_doc["id"] = str(post_doc["_id"])
+    
+    del post_doc["_id"]
+    yield post_doc
+    
+    review_for_consumer_collection.find_one_and_delete({"_id": ObjectId(post_id)})
+
+@fixture
+def get_posted_producer_id(get_posted_review):
+    return str(get_posted_review["producer_id"])
+
+@fixture
+def get_posted_consumer_id(get_posted_review):
+    return str(get_posted_review["consumer_id"])
+
 class Test_Get_By_Id:
     # Successful call
-    def test_get_by_id_in_db(self):
-        response = client.get("/review_for_consumer/" + VALID_ID)
+    def test_get_by_id_in_db(self, get_posted_review):
+        response = client.get("/review_for_consumer/" + get_posted_review["id"])
         response_model = review_for_consumer_response(**response.json())
         assert response.status_code == 200
 
@@ -48,8 +69,8 @@ class Test_Get_By_Id:
 
 class Test_Get_By_Consumer_And_Producer:
     #Successful 
-    def test_get_by_valid_consumer_id_and_producer_id(self):
-        response = client.get("/review_for_consumer", params={"consumer_id": CONSUMER_ID, "producer_id": PRODUCER_ID})
+    def test_get_by_valid_consumer_id_and_producer_id(self, get_posted_review):
+        response = client.get("/review_for_consumer", params={"consumer_id": get_posted_review["consumer_id"], "producer_id": get_posted_review["producer_id"]})
         assert response.status_code == 200
         
         # Validating documents returned
@@ -86,7 +107,6 @@ class Test_Get_By_Consumer_And_Producer:
     ])
     def test_get_by_consumer_id_and_producer_id_too_long(self, producer_or_consumer, id):
         response = client.get("/review_for_consumer", params={producer_or_consumer: id})
-        assert raises(RequestValidationError)
         assert response.status_code == 422
 
     # Empty id
@@ -181,26 +201,18 @@ class Test_Post_Review_For_Consumer:
         
         
 class Test_Put_Review_For_Consumer:
-    # Fixture to add a document to modify
-    @fixture
-    def post_user_id(self):   
-        payload = {"consumer_id": ObjectId(CONSUMER_ID), "producer_id": ObjectId(PRODUCER_ID), "rating": "2", "title": "This a post sent from Test_Put_Review_For_Consumer", "description": "This is the description", "date_created": datetime.utcnow(), "date_updated": datetime.utcnow()}
-        post_id = review_for_consumer_collection.insert_one(payload).inserted_id
-        yield str(post_id)
-        review_for_consumer_collection.find_one_and_delete({"_id": ObjectId(post_id)})
-
     @fixture
     def get_payload(self):
-        return {"rating": "5", "title": "New updated review", "description": "New udpated description"}
+        return {"rating": "5", "title": "New updated review", "description": "New updated description"}
 
     # Successful update
-    def test_put(self, post_user_id):
+    def test_put(self, get_posted_review):
         new_rating = 5
         new_title = "This a update post sent from Test_Put_Review_For_Consumer"
         new_description = "This is the updated description"
 
         updated_payload = {"rating": new_rating, "title": new_title, "description": new_description}
-        response = client.put("/review_for_consumer/" + post_user_id, json=updated_payload)
+        response = client.put("/review_for_consumer/" + get_posted_review["id"], json=updated_payload)
         
         assert response.status_code == 200
         
@@ -209,7 +221,6 @@ class Test_Put_Review_For_Consumer:
         assert response["rating"] == new_rating
         assert response["title"] == new_title
         assert response["description"] == new_description
-
 
     # Invald id
     def test_put_invalid_id(self, get_payload):
@@ -225,17 +236,10 @@ class Test_Put_Review_For_Consumer:
     def test_put_unavailable_id(sel, get_payload):
         response = client.put("/review_for_consumer/" + "", json=get_payload)
         assert response.status_code == 405
-        
-class Test_Delete_Review_For_Consumer:
-    @fixture
-    def post_user_id(self):   
-        payload = {"consumer_id": ObjectId(CONSUMER_ID), "producer_id": ObjectId(PRODUCER_ID), "rating": "2", "title": "This a post sent from Test_Put_Review_For_Consumer", "description": "This is the description", "date_created": datetime.utcnow(), "date_updated": datetime.utcnow()}
-        post_id = review_for_consumer_collection.insert_one(payload).inserted_id
-        yield str(post_id)
-        review_for_consumer_collection.find_one_and_delete({"_id": ObjectId(post_id)})
 
-    def test_delete_user_id(self, post_user_id):
-        response = client.delete("/review_for_consumer/" + post_user_id)
+class Test_Delete_Review_For_Consumer:
+    def test_delete_user_id(self, get_posted_review):
+        response = client.delete("/review_for_consumer/" + get_posted_review["id"])
         assert response.status_code == 204
 
     def test_delete_user_invalid_id(self):
