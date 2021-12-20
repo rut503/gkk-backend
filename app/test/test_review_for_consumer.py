@@ -8,6 +8,7 @@ from app.main import app
 from app.config.database import review_for_consumer_collection
 from pytest import mark, raises
 from app.models.review_for_consumer_model import review_for_consumer_response
+from pytest_lazyfixture import lazy_fixture
 client = TestClient(app)
 
 VALID_ID          = "61b6f11a41e7064d92e23641"
@@ -25,6 +26,8 @@ def get_posted_review():
     post_doc = review_for_consumer_collection.find_one({"_id": post_id})
     post_doc["id"] = str(post_doc["_id"])
     
+    print(type(post_doc["producer_id"]))
+
     del post_doc["_id"]
     yield post_doc
     
@@ -79,8 +82,8 @@ class Test_Get_By_Consumer_And_Producer:
 
     # Get reviews from a producer_id or a consumer_id
     @mark.parametrize("id, producer_or_consumer",[
-        (PRODUCER_ID, "producer_id"),
-        (CONSUMER_ID, "consumer_id")
+        (lazy_fixture('get_posted_producer_id'), "producer_id"),
+        (lazy_fixture('get_posted_consumer_id'), "consumer_id")
     ])
     def test_get_by_consumer_id_and_producer_id_only_one(self, id, producer_or_consumer):
         response = client.get("/review_for_consumer", params={producer_or_consumer: id})
@@ -111,8 +114,8 @@ class Test_Get_By_Consumer_And_Producer:
 
     # Empty id
     @mark.parametrize("producer_id, consumer_id",[
-        (PRODUCER_ID, ""),
-        ("", CONSUMER_ID),
+        (lazy_fixture('get_posted_producer_id'), ""),
+        ("", lazy_fixture('get_posted_consumer_id')),
         ("", ""),
     ])
     def test_get_by_consumer_id_and_producer_id_one_is_empty(self, producer_id, consumer_id):
@@ -132,8 +135,8 @@ DESCRIPTION = "This is the test description"
 
 class Test_Post_Review_For_Consumer:
     # Post with all fields passed
-    def test_post_valid_all_fields(self):
-        payload = {"consumer_id": CONSUMER_ID, "producer_id": PRODUCER_ID, "rating": RATING, "title": TITLE, "description": DESCRIPTION}
+    def test_post_valid_all_fields(self, get_posted_consumer_id, get_posted_producer_id):
+        payload = {"consumer_id": get_posted_consumer_id, "producer_id": get_posted_producer_id, "rating": RATING, "title": TITLE, "description": DESCRIPTION}
         response = client.post("review_for_consumer/", json=payload)
 
         response_status_code = response.status_code
@@ -141,8 +144,8 @@ class Test_Post_Review_For_Consumer:
         response = response.dict()
 
         assert response_status_code == 201
-        assert response["producer_id"] == PRODUCER_ID
-        assert response["consumer_id"] == CONSUMER_ID
+        assert response["producer_id"] == get_posted_producer_id
+        assert response["consumer_id"] == get_posted_consumer_id
         assert response["rating"] == RATING
         assert response["title"] == TITLE
         assert response["description"] == DESCRIPTION
@@ -153,15 +156,15 @@ class Test_Post_Review_For_Consumer:
         (RATING, "", DESCRIPTION),
         (RATING, TITLE, "")
     ])
-    def test_post_missing_fields(self, rating, title, description):
-        payload = {"consumer_id": CONSUMER_ID, "producer_id": PRODUCER_ID, "rating": rating, "title": title, "description": description}
+    def test_post_missing_fields(self, rating, title, description, get_posted_consumer_id, get_posted_producer_id):
+        payload = {"consumer_id": get_posted_consumer_id, "producer_id": get_posted_producer_id, "rating": rating, "title": title, "description": description}
         response = client.post("review_for_consumer/", json=payload)
         assert response.status_code == 422
         
     # Only one id passed, need a producer AND consumer id for posting a review
     @mark.parametrize("id, producer_or_consumer",[
-        (PRODUCER_ID, "producer_id"),
-        (CONSUMER_ID, "consumer_id")
+        (lazy_fixture('get_posted_producer_id'), "producer_id"),
+        (lazy_fixture('get_posted_consumer_id'), "consumer_id")
     ])
     def test_post_only_one_id(self, id, producer_or_consumer):
         payload = {producer_or_consumer: id, "rating": RATING, "title": TITLE, "description": DESCRIPTION}
@@ -170,8 +173,8 @@ class Test_Post_Review_For_Consumer:
 
     # Post with invalid object Id
     @mark.parametrize("producer_id, consumer_id",[
-        (INVALID_OBJECT_ID, CONSUMER_ID),
-        (PRODUCER_ID, INVALID_OBJECT_ID)
+        (INVALID_OBJECT_ID, lazy_fixture('get_posted_consumer_id')),
+        (lazy_fixture('get_posted_producer_id'), INVALID_OBJECT_ID)
     ])
     def test_post_invalid_id(self, producer_id, consumer_id):
         payload = {"producer_id": producer_id, "consumer_id": consumer_id, "rating": RATING, "title": TITLE, "description": DESCRIPTION}
@@ -180,8 +183,8 @@ class Test_Post_Review_For_Consumer:
 
     # Post with empty id's
     @mark.parametrize("producer_id, consumer_id",[
-        (PRODUCER_ID, ""),
-        ("", CONSUMER_ID),
+        (lazy_fixture('get_posted_producer_id'), ""),
+        ("", lazy_fixture('get_posted_consumer_id')),
         ("", "")
     ])
     def test_post_empty_ids(self, producer_id, consumer_id):
@@ -190,8 +193,8 @@ class Test_Post_Review_For_Consumer:
         assert response.status_code == 422
 
     @mark.parametrize("producer_id, consumer_id", [
-        (PRODUCER_ID, PRODUCER_ID),
-        (CONSUMER_ID, CONSUMER_ID)
+        (lazy_fixture('get_posted_producer_id'), lazy_fixture('get_posted_producer_id')),
+        (lazy_fixture('get_posted_consumer_id'), lazy_fixture('get_posted_consumer_id'))
     ])
     # Post with id's that aren't in any documents
     def test_post_no_document_with_matching_id(self, producer_id, consumer_id):
