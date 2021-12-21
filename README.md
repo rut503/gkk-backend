@@ -187,39 +187,35 @@
             producer_id: ObjectId,
             items: [
                 {
-                    food_item: {
-                        diet_preference: "Vegetarian",
-                        description: "Apple or Pumpkin flavor",
-                        photo: "",
-                        price: 5.25,
-                        rating: 0,
-                        name: "Pie",
-                        portion_size: 3,
-                        spicy: 0,
-                        allergy: ["Dairy", "Soy"]
-                    },
+                    diet_preference: [ "Vegetarian" ],
+                    description: "Apple or Pumpkin flavor",
+                    photo: "http://www.photo.com",
+                    price: 5.25,
+                    rating: 0,
+                    name: "Pie",
+                    portion_size: 3,
+                    spicy: 0,
+                    allergy: [ "Dairy", "Soy" ],
                     quantity: 3
                 },
                 {
-                    food_item: {
-                        diet_preference: "Vegetarian",
-                        description: "Peanut Butter Jelly",
-                        photo: "",
-                        price: 2.45,
-                        rating: 0,
-                        name: "Peanut Butter Jeally",
-                        portion_size: 1.8,
-                        spicy: 0,
-                        allergy: ["Peanut Butter", "Dairy", "Soy"]
-                    },
+                    diet_preference: [ "Vegetarian" ],
+                    description: "Peanut Butter Jelly",
+                    photo: "http://www.photo.com",
+                    price: 2.45,
+                    rating: 0,
+                    name: "Peanut Butter Jeally",
+                    portion_size: 1.8,
+                    spicy: 0,
+                    allergy: [ "Peanut Butter", "Dairy", "Soy" ],
                     quantity: 5
-                },
+                }
             ],
-            amount: 45.32,
+            total_price: 45.32,
             status: "pending",
             meal_time: "breakfast",
-            order_due_datetime: Date,
             message_for_producer: "Make it delicious please",
+            order_due_datetime: Date
         }
     ```
 
