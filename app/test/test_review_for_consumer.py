@@ -132,8 +132,15 @@ class Test_Get_By_Consumer_And_Producer:
 RATING = 2
 TITLE = "This is a test for posting a review for consumer"
 DESCRIPTION = "This is the test description"
-
 class Test_Post_Review_For_Consumer:
+
+    # This fixture will delete reviews that have matching test fields after all the tests in this class have finished. 
+    # Eg RATING = 2, TITLE = "This is a test for posting a review for consumer" ,DESCRIPTION = "This is the test description"
+    @fixture(autouse=True)
+    def delete_post(self):
+        yield
+        review_for_consumer_collection.delete_many({"title": TITLE, "description": DESCRIPTION})
+
     # Post with all fields passed
     def test_post_valid_all_fields(self, get_posted_consumer_id, get_posted_producer_id):
         payload = {"consumer_id": get_posted_consumer_id, "producer_id": get_posted_producer_id, "rating": RATING, "title": TITLE, "description": DESCRIPTION}
