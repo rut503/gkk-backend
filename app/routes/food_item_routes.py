@@ -82,8 +82,8 @@ async def post_food_item(food_item: food_item_post):
     food_item["date_created"] = datetime.utcnow()
 
     # converting id type from sting to ObjectId for database
-    producer_id_object_id = ObjectId(food_item["producer_id"])
-    food_item["producer_id"] = producer_id_object_id
+    producer_id = ObjectId(food_item["producer_id"])
+    food_item["producer_id"] = producer_id
 
     #############################################################################
     # TODO: Do something about photo upload here and get the URL to store in DB #
@@ -101,7 +101,7 @@ async def post_food_item(food_item: food_item_post):
     
     # update producer's food_items array field with new food_item id pushed into it
     updated_producer = producer_collection.find_one_and_update(
-        { "_id": producer_id_object_id },
+        { "_id": producer_id },
         { "$push": { "food_items": inserted_food_item_id } },
         return_document=ReturnDocument.AFTER    # this will return updated document after update happens 
     )
