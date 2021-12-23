@@ -1,25 +1,16 @@
 from datetime import datetime
 from _pytest.fixtures import fixture
 from bson.objectid import ObjectId
-from app.config.database import review_for_consumer_collection, consumer_collection, producer_collection
+from app.config.database import review_for_consumer_collection
 from fastapi.testclient import TestClient
-from fastapi import HTTPException
 from app.main import app
 from app.config.database import review_for_consumer_collection
-from pytest import mark, raises
 from app.models.review_for_consumer_model import review_for_consumer_response
 from pytest_lazyfixture import lazy_fixture
-client = TestClient(app)
+from pytest import mark
+from app.test.ids_for_testing import *
 
-VALID_ID          = "61b6f11a41e7064d92e23641"
-UNAVAILABLE_ID    = "111111111111111111111111"
-INVALID_OBJECT_ID = "xxxxxxxxxxxxxxxxxxxxxxxx"
-TOO_LONG_ID       = "1111111111111111111111111"
-CONSUMER_ID       = "61b6f10641e7064d92e2361e"
-PRODUCER_ID       = "61b6f10841e7064d92e23621"
-POST_RATING = 2
-POST_TITLE = "This is a test for posting a review for consumer"
-POST_DESCRIPTION = "This is the test description"
+client = TestClient(app)
 
 # Creates a test document and returns the new document. Deletes the document at the end. 
 @fixture
@@ -42,6 +33,11 @@ def get_posted_producer_id(get_posted_review):
 def get_posted_consumer_id(get_posted_review):
     return str(get_posted_review["consumer_id"])
 
+#######################################################################################################################################################################################################################################
+#
+#                                                                       Get by id
+#
+#######################################################################################################################################################################################################################################
 class Test_Get_By_Id:
     # Successful call
     def test_get_by_id_in_db(self, get_posted_review):
@@ -74,6 +70,11 @@ class Test_Get_By_Id:
         response = client.get("/review_for_consumer/")
         assert response.status_code == 405
 
+#######################################################################################################################################################################################################################################
+#
+#                                                                       Get by consumer or producer id
+#
+#######################################################################################################################################################################################################################################
 class Test_Get_By_Consumer_And_Producer:
     # Successful 
     def test_get_by_valid_consumer_id_and_producer_id(self, get_posted_review):
@@ -132,6 +133,11 @@ class Test_Get_By_Consumer_And_Producer:
         assert response.json()["detail"] == INVALID_OBJECT_ID + " consumer_id is not a valid ObjectId type!"
         assert response.status_code == 400
 
+#######################################################################################################################################################################################################################################
+#
+#                                                                       Post operations
+#
+#######################################################################################################################################################################################################################################
 class Test_Post_Review_For_Consumer:
     # This fixture will delete reviews that have matching test fields after all the tests in this class have finished. 
     # Eg TITLE = "This is a test for posting a review for consumer" ,DESCRIPTION = "This is the test description"
@@ -153,7 +159,7 @@ class Test_Post_Review_For_Consumer:
         assert response["consumer_id"] == get_posted_consumer_id
         assert response["rating"] == POST_RATING
         assert response["title"] == POST_TITLE
-        assert response["description"] == POST_DESCRIPTION
+        assert response["description"] == POST_DESCRIPTION  
         assert response_status_code == 201
     
     # Test with not sending the required fields
@@ -208,7 +214,11 @@ class Test_Post_Review_For_Consumer:
         response = client.post("/review_for_consumer/", json=payload)
         assert response.status_code == 404
         
-        
+#######################################################################################################################################################################################################################################
+#
+#                                                                       Put opeartions
+#
+#######################################################################################################################################################################################################################################
 class Test_Put_Review_For_Consumer:
     @fixture
     def get_payload(self):
@@ -245,15 +255,24 @@ class Test_Put_Review_For_Consumer:
         response = client.put("/review_for_consumer/" + "", json=get_payload)
         assert response.status_code == 405
 
+#######################################################################################################################################################################################################################################
+#
+#                                                                       Delete operations
+#
+#######################################################################################################################################################################################################################################
 class Test_Delete_Review_For_Consumer:
-    def test_delete_user_id(self, get_posted_review):
+    def test_delete_review_By_id(self, get_posted_review):
         response = client.delete("/review_for_consumer/" + get_posted_review["id"])
         assert response.status_code == 204
 
-    def test_delete_user_invalid_id(self):
+    def test_delete_review_invalid_id(self):
         response = client.delete("/review_for_consumer/" + INVALID_OBJECT_ID)
         assert response.status_code == 400
 
-    def test_delete_user_unavailable_id(self):
+    def test_delete_review_unavailable_id(self):
         response = client.delete("/review_for_consumer/" + UNAVAILABLE_ID)
         assert response.status_code == 404
+
+    def test_delete_review_empty_String(self):
+        response = client.delete("/review_for_consumer/" + "")
+        assert response.status_code == 405
