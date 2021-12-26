@@ -1,10 +1,9 @@
 from datetime import datetime
 from _pytest.fixtures import fixture
 from bson.objectid import ObjectId
-from app.config.database import review_for_consumer_collection
+from app.config.database import review_for_consumer_collection, producer_collection, consumer_collection
 from fastapi.testclient import TestClient
 from app.main import app
-from app.config.database import review_for_consumer_collection
 from app.models.review_for_consumer_model import review_for_consumer_response
 from pytest_lazyfixture import lazy_fixture
 from pytest import mark
@@ -12,9 +11,33 @@ from app.test.ids_for_testing import *
 
 client = TestClient(app)
 
+@fixture
+def post_producer():
+    payload = PAYLOAD_PRODUCER
+    post_id = producer_collection.insert_one(payload).inserted_id
+    post_doc = producer_collection.find_one({"_id": post_id})
+    post_doc["id"] = str(post_doc["_id"])
+    
+    del post_doc["_id"]
+    yield post_doc["id"]
+
+    producer_collection.find_one_and_delete({"_id": ObjectId(post_id)})
+@fixture
+def post_consumer():
+    payload = CONSUMER_PAYLOAD
+    post_id = consumer_collection.insert_one(payload).inserted_id
+    post_doc = consumer_collection.find_one({"_id": post_id})
+    post_doc["id"] = str(post_doc["_id"])
+    
+    del post_doc["_id"]
+    yield post_doc["id"]
+
+    consumer_collection.find_one_and_delete({"_id": ObjectId(post_id)})
+
+
 # Creates a test document and returns the new document. Deletes the document at the end. 
 @fixture
-def get_posted_review():   
+def get_posted_review(post_producer, post_consumer):   
     payload = {"consumer_id": ObjectId(CONSUMER_ID), "producer_id": ObjectId(PRODUCER_ID), "rating": POST_RATING, "title": POST_TITLE, "description": POST_DESCRIPTION, "date_created": datetime.utcnow(), "date_updated": datetime.utcnow()}
     post_id = review_for_consumer_collection.insert_one(payload).inserted_id
     post_doc = review_for_consumer_collection.find_one({"_id": post_id})
@@ -276,3 +299,8 @@ class Test_Delete_Review_For_Consumer:
     def test_delete_review_empty_String(self):
         response = client.delete("/review_for_consumer/" + "")
         assert response.status_code == 405
+
+
+
+
+
