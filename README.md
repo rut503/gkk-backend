@@ -1,8 +1,12 @@
 # Commands
 
-1. Be in a python virtual environment (gkk-backend)
-2. Be inside of app directory (../gkk-backend/app)
-3. Run `pipenv run uvicorn main:app --reload`
+1. Install pipenv
+    - `pip3 install pipenv`
+2. Start python virtual environment (gkk-backend)
+    - Be inside of app directory (../gkk-backend/app)
+    - `pipenv shell`
+3. Run server
+    - `pipenv run uvicorn main:app --reload`
 
 # Backend Logic Map
 
