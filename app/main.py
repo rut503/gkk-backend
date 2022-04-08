@@ -1,3 +1,7 @@
+import aioredis
+from fastapi_cache import FastAPICache, JsonCoder
+from fastapi_cache.backends.redis import RedisBackend
+from fastapi_cache.decorator import cache
 from fastapi import FastAPI
 from app.routes.consumer_routes import consumer_router
 from app.routes.producer_routes import producer_router
@@ -65,3 +69,9 @@ app.include_router(
     prefix="/review_for_food_item",
     tags=["Review for Food Item"]
 )
+
+@app.on_event("startup")
+async def startup():
+    # Redis instance backed by a pool of connections
+    redis = aioredis.from_url(url="redis://localhost")
+    FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")

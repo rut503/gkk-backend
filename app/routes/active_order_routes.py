@@ -5,6 +5,7 @@ from pymongo import ReturnDocument
 from bson import ObjectId
 from datetime import datetime
 from starlette.responses import Response
+from fastapi_cache.decorator import cache
 
 from app.config.database import active_order_collection, archived_order_collection, producer_collection, consumer_collection
 from app.models.active_order_model import active_order_post, active_order_put, active_order_response
@@ -35,6 +36,7 @@ async def get_active_order_by_id( id: str = Path(..., min_length=24, max_length=
 
 
 @active_order_router.get("", response_model=List[active_order_response], status_code=status.HTTP_200_OK)
+@cache(namespace="active_order", expire=480)
 async def get_all_active_orders_by_user(
     consumer_id: Optional[str] = Query(None, min_length=24, max_length=24),
     producer_id: Optional[str] = Query(None, min_length=24, max_length=24)

@@ -9,6 +9,8 @@ uvicorn = {extras = ["standard"], version = "*"}
 pymongo = {extras = ["srv"], version = "*"}
 python-dotenv = "*"
 pydantic = {extras = ["email"], version = "*"}
+aioredis = "*"
+fastapi-cache2 = "*"
 
 [dev-packages]
 
