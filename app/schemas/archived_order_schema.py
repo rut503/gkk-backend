@@ -1,6 +1,6 @@
 from pymongo.cursor import Cursor
 
-from app.schemas.active_order_schema import active_order_serializer, active_orders_serializer
+from schemas.active_order_schema import active_order_serializer, active_orders_serializer
 
 def archived_order_serializer(order_document: dict) -> dict:
     return active_order_serializer(order_document)

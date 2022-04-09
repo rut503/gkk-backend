@@ -1,12 +1,12 @@
 from fastapi import FastAPI
-from app.routes.consumer_routes import consumer_router
-from app.routes.producer_routes import producer_router
-from app.routes.food_item_routes import food_item_router
-from app.routes.active_order_routes import active_order_router
-from app.routes.archived_order_routes import archived_order_router
-from app.routes.review_for_consumer_routes import review_for_consumer_router
-from app.routes.review_for_producer_routes import review_for_producer_router
-from app.routes.review_for_food_item_routes import review_for_food_item_router
+from routes.consumer_routes import consumer_router
+from routes.producer_routes import producer_router
+from routes.food_item_routes import food_item_router
+from routes.active_order_routes import active_order_router
+from routes.archived_order_routes import archived_order_router
+from routes.review_for_consumer_routes import review_for_consumer_router
+from routes.review_for_producer_routes import review_for_producer_router
+from routes.review_for_food_item_routes import review_for_food_item_router
 
 app = FastAPI()
 

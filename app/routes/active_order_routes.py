@@ -6,10 +6,10 @@ from bson import ObjectId
 from datetime import datetime
 from starlette.responses import Response
 
-from app.config.database import active_order_collection, archived_order_collection, producer_collection, consumer_collection
-from app.models.active_order_model import active_order_post, active_order_put, active_order_response
-from app.schemas.active_order_schema import active_order_serializer, active_orders_serializer
-from app.schemas.archived_order_schema import archived_order_serializer
+from config.database import active_order_collection, archived_order_collection, producer_collection, consumer_collection
+from models.active_order_model import active_order_post, active_order_put, active_order_response
+from schemas.active_order_schema import active_order_serializer, active_orders_serializer
+from schemas.archived_order_schema import archived_order_serializer
 
 active_order_router = APIRouter()
 

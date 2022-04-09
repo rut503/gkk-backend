@@ -3,9 +3,9 @@ from fastapi import APIRouter, HTTPException, status
 from fastapi.params import Path, Query
 from bson import ObjectId
 
-from app.config.database import archived_order_collection
-from app.models.archived_order_model import archived_order_response
-from app.schemas.archived_order_schema import archived_order_serializer, archived_orders_serializer
+from config.database import archived_order_collection
+from models.archived_order_model import archived_order_response
+from schemas.archived_order_schema import archived_order_serializer, archived_orders_serializer
 
 archived_order_router = APIRouter()
 

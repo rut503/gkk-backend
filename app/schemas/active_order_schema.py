@@ -1,6 +1,6 @@
 from pymongo.cursor import Cursor
 
-from app.schemas.food_item_schema import food_items_serializer_for_orders
+from schemas.food_item_schema import food_items_serializer_for_orders
 
 def active_order_serializer(order_document: dict) -> dict:
     return{

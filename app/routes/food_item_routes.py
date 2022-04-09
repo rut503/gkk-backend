@@ -6,9 +6,9 @@ from bson import ObjectId
 from datetime import datetime
 from starlette.responses import Response
 
-from app.config.database import food_item_collection, producer_collection, review_for_food_item_collection
-from app.models.food_item_model import food_item_post, food_item_put, food_item_response
-from app.schemas.food_item_schema import food_item_serializer, food_items_serializer
+from config.database import food_item_collection, producer_collection, review_for_food_item_collection
+from models.food_item_model import food_item_post, food_item_put, food_item_response
+from schemas.food_item_schema import food_item_serializer, food_items_serializer
 
 food_item_router = APIRouter()
 

@@ -7,9 +7,9 @@ from datetime import datetime
 from pymongo import ReturnDocument
 from starlette.responses import Response
 
-from app.models.review_for_producer_model import review_for_producer_post, review_for_producer_put, review_for_producer_response
-from app.config.database import review_for_producer_collection, producer_collection, consumer_collection
-from app.schemas.review_for_producer_schema import review_for_producer_serializer, reviews_for_producer_serializer
+from models.review_for_producer_model import review_for_producer_post, review_for_producer_put, review_for_producer_response
+from config.database import review_for_producer_collection, producer_collection, consumer_collection
+from schemas.review_for_producer_schema import review_for_producer_serializer, reviews_for_producer_serializer
 
 review_for_producer_router = APIRouter()
 

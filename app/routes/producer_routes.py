@@ -5,9 +5,9 @@ from bson import ObjectId
 from fastapi.params import Query, Path
 from pymongo.collection import ReturnDocument
 from starlette.responses import Response
-from app.models.producer_model import *
-from app.config.database import *
-from app.schemas.producer_schema import producer_serializer
+from models.producer_model import *
+from config.database import *
+from schemas.producer_schema import producer_serializer
 
 
 producer_router = APIRouter()
