@@ -1,8 +1,12 @@
 # Commands
 
-1. Be in a python virtual environment (gkk-backend)
-2. Be inside of app directory (../gkk-backend/app)
-3. Run `pipenv run uvicorn main:app --reload`
+1. Install pipenv
+    - `pip3 install pipenv`
+2. Start python virtual environment (gkk-backend)
+    - Be inside of app directory (../gkk-backend/app)
+    - `pipenv shell`
+3. Run server
+    - `pipenv run uvicorn main:app --reload`
 
 # Backend Logic Map
 
@@ -52,9 +56,12 @@
 #### Producer
 
 - Find producer
-    - `GET : /producer/{id}`
+    - `GET : /producer/{id} ? fields=[]`
+        - query parameter values
+        - fields: "first_name", "last_name", "phone_number", "address", "food_items", "rating", "menu", "date_created", "date_updated"
     - `GET : /producer/phone_number/{phone_number}`
-    - `GET : /producer/filter ? _______` 
+    - WIP
+    - `GET : /producer/filter ? _______`
         - query parameters
             - consumer_coordinates = ??????
             - distance_radius = 8 (miles, float)
@@ -75,8 +82,8 @@
         }
     ```
 
-- Update producer
-    - `PUT : /producer/{id}`
+- Update producer address
+    - `PUT : /producer/{id}/address`
     ```
         {
             first_name: "Juan",
@@ -90,48 +97,23 @@
             }
         }
     ```
-    - `PUT : /producer/{id}/menu`
+- Update add menu item
+    - `PUT : /poducer/{id}/menu/{day}/{meal_type}`
+        - query parameter values
+            - day : "sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"
+            - meal_type : "breakfast", "lunch", "dinner"
+        - body
     ```
         {
-            menu: {
-                sunday: {
-                    breakfast: [ food_item_id ],
-                    lunch: [ food_item_id ],
-                    dinner: [ food_item_id ]
-                },
-                monday: {
-                    breakfast: [ food_item_id ],
-                    lunch: [ food_item_id ],
-                    dinner: [ food_item_id ]
-                },
-                tuesday: {
-                    breakfast: [ food_item_id ],
-                    lunch: [ food_item_id ],
-                    dinner: [ food_item_id ]
-                },
-                wednesday: {
-                    breakfast: [ food_item_id ],
-                    lunch: [ food_item_id ],
-                    dinner: [ food_item_id ]
-                },
-                thursday: {
-                    breakfast: [ food_item_id ],
-                    lunch: [ food_item_id ],
-                    dinner: [ food_item_id ]
-                },
-                friday: {
-                    breakfast: [ food_item_id ],
-                    lunch: [ food_item_id ],
-                    dinner: [ food_item_id ]
-                },
-                saturday: {
-                    breakfast: [ food_item_id ],
-                    lunch: [ food_item_id ],
-                    dinner: [ food_item_id ]
-                }
-            }
+            food_array: [food_ObjectId1 , food_ObjectId2, ...]
         }
     ```
+- Update remove menu item
+    - `PUT : /poducer/{id}/menu/{day}/{meal_type}/{menu_id}`
+        - query parameter values
+            - day : "sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"
+            - meal_type : "breakfast", "lunch", "dinner"
+
 - Delete producer
     - `DELETE : /producer/{id}`
 
@@ -187,39 +169,35 @@
             producer_id: ObjectId,
             items: [
                 {
-                    food_item: {
-                        diet_preference: "Vegetarian",
-                        description: "Apple or Pumpkin flavor",
-                        photo: "",
-                        price: 5.25,
-                        rating: 0,
-                        name: "Pie",
-                        portion_size: 3,
-                        spicy: 0,
-                        allergy: ["Dairy", "Soy"]
-                    },
+                    diet_preference: [ "Vegetarian" ],
+                    description: "Apple or Pumpkin flavor",
+                    photo: "http://www.photo.com",
+                    price: 5.25,
+                    rating: 0,
+                    name: "Pie",
+                    portion_size: 3,
+                    spicy: 0,
+                    allergy: [ "Dairy", "Soy" ],
                     quantity: 3
                 },
                 {
-                    food_item: {
-                        diet_preference: "Vegetarian",
-                        description: "Peanut Butter Jelly",
-                        photo: "",
-                        price: 2.45,
-                        rating: 0,
-                        name: "Peanut Butter Jeally",
-                        portion_size: 1.8,
-                        spicy: 0,
-                        allergy: ["Peanut Butter", "Dairy", "Soy"]
-                    },
+                    diet_preference: [ "Vegetarian" ],
+                    description: "Peanut Butter Jelly",
+                    photo: "http://www.photo.com",
+                    price: 2.45,
+                    rating: 0,
+                    name: "Peanut Butter Jeally",
+                    portion_size: 1.8,
+                    spicy: 0,
+                    allergy: [ "Peanut Butter", "Dairy", "Soy" ],
                     quantity: 5
-                },
+                }
             ],
-            amount: 45.32,
+            total_price: 45.32,
             status: "pending",
             meal_time: "breakfast",
-            order_due_datetime: Date,
             message_for_producer: "Make it delicious please",
+            order_due_datetime: Date
         }
     ```
 
@@ -266,7 +244,7 @@
     ```
 
 - Delete review for consumer
-  - `DELETE : /review_for_consumer/{id}`
+    - `DELETE : /review_for_consumer/{id}`
 
 #### Review For Producer
 
@@ -297,16 +275,16 @@
     ```
 
 - Delete review for producer
-  - `DELETE : /review_for_producer/{id}`
+    - `DELETE : /review_for_producer/{id}`
 
 #### Review For Food
 
 - Find review for food
-    - `GET : /review_for_food/{id}`
-    - `GET : /review_for_food ? consumer_id="" & food_item_id="" `
+    - `GET : /review_for_food_item/{id}`
+    - `GET : /review_for_food_item ? consumer_id="" & food_item_id="" `
 
 - Create new review for food
-    - POST : `/review_for_food/`
+    - POST : `/review_for_food_item/`
     ```
         {
             consumer_id: ObjectId,
@@ -318,7 +296,7 @@
     ```
 
 - Update review for food
-    - `PUT : /review_for_food/{id}`
+    - `PUT : /review_for_food_item/{id}`
     ```
         {
             rating: 4,
@@ -328,11 +306,11 @@
     ```
 
 - Delete review for food
-    - `DELETE : /review_for_food/{id}`
+    - `DELETE : /review_for_food_item/{id}`
 
 #### Special Routes
 
-- Search for food items 
+- Search for food items
     - `GET : /search/food_item ? ______ `
         - Query Parameters
         ```

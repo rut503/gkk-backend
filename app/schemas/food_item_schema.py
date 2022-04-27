@@ -17,3 +17,17 @@ def food_item_serializer(food_item) -> dict:
 
 def food_items_serializer(food_items) -> list:
     return [ food_item_serializer(food_item) for food_item in food_items ]
+
+def food_items_serializer_for_orders(food_item) -> dict:
+    return {
+        "diet_preference": food_item["diet_preference"],
+        "description": food_item["description"],
+        "photo": food_item["photo"],
+        "price": food_item["price"],
+        "rating": food_item["rating"],
+        "name": food_item["name"],
+        "portion_size": food_item["portion_size"],
+        "spicy": food_item["spicy"],
+        "allergy": food_item["allergy"],
+        "quantity": food_item["quantity"]
+    }

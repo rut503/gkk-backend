@@ -5,20 +5,20 @@ from bson import ObjectId
 from datetime import datetime
 from starlette.responses import Response
 
-from app.config.database import ( 
+from config.database import ( 
     consumer_collection, 
     deactivated_consumer_collection, 
     review_for_consumer_collection, 
     review_for_producer_collection, 
     review_for_food_item_collection
 )
-from app.models.consumer_model import consumer_post, consumer_put, consumer_response
-from app.schemas.consumer_schema import consumer_serializer
+from models.consumer_model import consumer_post, consumer_put, consumer_response
+from schemas.consumer_schema import consumer_serializer
 
 consumer_router = APIRouter()
 
 # get data
-@consumer_router.get("/{id}", response_model=consumer_response)
+@consumer_router.get("/{id}", response_model=consumer_response, status_code=status.HTTP_200_OK)
 async def get_consumer_by_id( id: str = Path(..., min_length=24, max_length=24) ):
     # checking if passed in id is valid ObjectId type
     if not ObjectId.is_valid(id):
@@ -37,7 +37,7 @@ async def get_consumer_by_id( id: str = Path(..., min_length=24, max_length=24) 
     consumer = consumer_serializer(consumer)
     return consumer
 
-@consumer_router.get("/phone_number/{phone_number}", response_model=consumer_response)
+@consumer_router.get("/phone_number/{phone_number}", response_model=consumer_response, status_code=status.HTTP_200_OK)
 async def get_consumer_by_phone_number( phone_number: str = Path(..., min_length=10, max_length=15, regex="[0-9]{10,15}") ):
     # finding consumer that matches passed in phone_number
     consumer = consumer_collection.find_one({ "phone_number": phone_number })
@@ -77,7 +77,7 @@ async def post_consumer(consumer: consumer_post):
     if not inserted_consumer.inserted_id:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
-            detail="Error while inserting"
+            detail="Error while inserting Consumer"
         )
     
     # finding that inserted consumer 
@@ -94,7 +94,7 @@ async def post_consumer(consumer: consumer_post):
 
 
 # put data
-@consumer_router.put("/{id}", response_model=consumer_response)
+@consumer_router.put("/{id}", response_model=consumer_response, status_code=status.HTTP_200_OK)
 async def put_consumer( *, id: str = Path(..., min_length=24, max_length=24), consumer: consumer_put ):
     # checking if passed in id is valid ObjectId type
     if not ObjectId.is_valid(id):

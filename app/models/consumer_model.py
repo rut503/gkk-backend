@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, HttpUrl, EmailStr
 from datetime import datetime
 from typing import List
 
@@ -12,6 +12,8 @@ class consumer_base(BaseModel):
     first_name: str = Field(..., min_length=1, max_length=50)
     last_name: str = Field(..., min_length=1, max_length=50)
     phone_number: str = Field(..., min_length=10, max_length=15, regex="[0-9]{10,15}")
+    email_address: EmailStr
+    bio: str = Field(..., min_length=0, max_length=2000)
     address: address_base
 
 class consumer_post(consumer_base):
@@ -22,6 +24,7 @@ class consumer_put(consumer_base):
 
 class consumer_response(consumer_base):
     id: str = Field(..., min_length=24, max_length=24)
+    photo: HttpUrl
     rating: float = Field(..., ge=0.00, le=5.00)
     active_orders: List[ str ]
     date_created: datetime

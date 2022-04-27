@@ -7,15 +7,15 @@ from datetime import datetime
 from pymongo import ReturnDocument
 from starlette.responses import Response
 
-from models.review_for_consumer_model import review_for_consumer_post, review_for_consumer_put, review_for_consumer_response
-from config.database import review_for_consumer_collection, consumer_collection, producer_collection
-from schemas.review_for_consumer_schema import review_for_consumer_serializer, reviews_for_consumer_serializer
+from models.review_for_producer_model import review_for_producer_post, review_for_producer_put, review_for_producer_response
+from config.database import review_for_producer_collection, producer_collection, consumer_collection
+from schemas.review_for_producer_schema import review_for_producer_serializer, reviews_for_producer_serializer
 
-review_for_consumer_router = APIRouter()
+review_for_producer_router = APIRouter()
 
 
-@review_for_consumer_router.get("/{id}", response_model=review_for_consumer_response, status_code=status.HTTP_200_OK)
-async def get_review_for_consumer_by_id( id: str = Path(..., min_length=24, max_length=24) ):
+@review_for_producer_router.get("/{id}", response_model=review_for_producer_response, status_code=status.HTTP_200_OK)
+async def get_review_for_producer_by_id( id: str = Path(..., min_length=24, max_length=24) ):
     # checking if passed in id is valid ObjectId type
     if not ObjectId.is_valid(id):
         raise HTTPException(
@@ -23,19 +23,19 @@ async def get_review_for_consumer_by_id( id: str = Path(..., min_length=24, max_
             detail=id + " is not a valid ObjectId type!"
         )
 
-    # finding review_for_consumer that matches passed in id
-    review_document_returned = review_for_consumer_collection.find_one({ "_id": ObjectId(id) })
+    # finding review_for_producer that matches passed in id
+    review_document_returned = review_for_producer_collection.find_one({ "_id": ObjectId(id) })
     if review_document_returned is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, 
-            detail="Review for Consumer not found with review id " + id
+            detail="Review for Producer not found with review id " + id
         )
-    serialized_review_document = review_for_consumer_serializer(review_document_returned)
+    serialized_review_document = review_for_producer_serializer(review_document_returned)
     return serialized_review_document
 
 
-@review_for_consumer_router.get("", response_model=List[review_for_consumer_response], status_code=status.HTTP_200_OK)
-async def get_all_review_for_consumer_by_user(
+@review_for_producer_router.get("", response_model=List[review_for_producer_response], status_code=status.HTTP_200_OK)
+async def get_all_review_for_producer_by_user(
     consumer_id: Optional[str] = Query(None, min_length=24, max_length=24),
     producer_id: Optional[str] = Query(None, min_length=24, max_length=24)
 ):
@@ -65,13 +65,13 @@ async def get_all_review_for_consumer_by_user(
 
     # checking if find_review_query has any value
     if find_review_query:
-        review_document_cursor = review_for_consumer_collection.find(find_review_query)
-        serialized_review_documents = reviews_for_consumer_serializer(review_document_cursor)
-        # checking if review_for_consumer were not found
+        review_document_cursor = review_for_producer_collection.find(find_review_query)
+        serialized_review_documents = reviews_for_producer_serializer(review_document_cursor)
+        # checking if review_for_producer were not found
         if len(serialized_review_documents) == 0:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, 
-                detail="Review for Consumer not found with passed in id(s)"
+                detail="Review for Producer not found with passed in id(s)"
             )
         return serialized_review_documents
     else:
@@ -81,8 +81,8 @@ async def get_all_review_for_consumer_by_user(
             )
 
 
-@review_for_consumer_router.post("/", response_model=review_for_consumer_response, status_code=status.HTTP_201_CREATED)
-async def post_review_for_consumer(review: review_for_consumer_post):
+@review_for_producer_router.post("/", response_model=review_for_producer_response, status_code=status.HTTP_201_CREATED)
+async def post_review_for_producer(review: review_for_producer_post):
     # checking if passed in producer_id and consumer_id is valid ObjectId type
     if not ObjectId.is_valid(review.producer_id):
         raise HTTPException(
@@ -118,21 +118,21 @@ async def post_review_for_consumer(review: review_for_consumer_post):
     review_to_insert["producer_id"] = ObjectId(review_to_insert["producer_id"])
     review_to_insert["consumer_id"] = ObjectId(review_to_insert["consumer_id"])
 
-    result = review_for_consumer_collection.insert_one(review_to_insert)
+    result = review_for_producer_collection.insert_one(review_to_insert)
     if not result.inserted_id:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
-            detail="Error while inserting Reveiw for Consumer"
+            detail="Error while inserting Reveiw for Producer"
         )
 
     # Retrieving newly added document
-    inserted_review = review_for_consumer_collection.find_one({ "_id": result.inserted_id })
-    inserted_review = review_for_consumer_serializer(inserted_review)
+    inserted_review = review_for_producer_collection.find_one({ "_id": result.inserted_id })
+    inserted_review = review_for_producer_serializer(inserted_review)
     return inserted_review
 
 
-@review_for_consumer_router.put("/{id}", response_model=review_for_consumer_response, status_code=status.HTTP_200_OK)
-async def update_review_for_consumer( *, id: str = Path(..., min_length=24, max_length=24), review: review_for_consumer_put ):
+@review_for_producer_router.put("/{id}", response_model=review_for_producer_response, status_code=status.HTTP_200_OK)
+async def update_review_for_producer( *, id: str = Path(..., min_length=24, max_length=24), review: review_for_producer_put ):
     # checking if passed in id is valid ObjectId type
     if not ObjectId.is_valid(id):
         raise HTTPException(
@@ -144,27 +144,27 @@ async def update_review_for_consumer( *, id: str = Path(..., min_length=24, max_
     review = review.dict()
     review["date_updated"] = datetime.utcnow()
 
-    # finding and updating review_for_consumer
-    updated_review = review_for_consumer_collection.find_one_and_update(
+    # finding and updating review_for_producer
+    updated_review = review_for_producer_collection.find_one_and_update(
         { "_id": ObjectId(id) },
         { "$set": review },
         return_document=ReturnDocument.AFTER    # this will return updated document after update happens 
     )
 
-    # checking if the review_for_consumer update was sucessful
+    # checking if the review_for_producer update was sucessful
     if updated_review is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, 
-            detail="Review for Consumer to be updated not found with id " + id
+            detail="Review for Producer to be updated not found with id " + id
         )
 
     # returning updated review 
-    serialized_updated_review = review_for_consumer_serializer(updated_review)
+    serialized_updated_review = review_for_producer_serializer(updated_review)
     return serialized_updated_review
 
 
-@review_for_consumer_router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_review_for_consumer( id: str = Path(..., min_length=24, max_length=24) ):
+@review_for_producer_router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_review_for_producer( id: str = Path(..., min_length=24, max_length=24) ):
     # checking if passed in id is valid ObjectId type
     if not ObjectId.is_valid(id):
         raise HTTPException(
@@ -172,12 +172,12 @@ async def delete_review_for_consumer( id: str = Path(..., min_length=24, max_len
             detail=id + " is not a valid ObjectId type!"
         )
     
-    # deleting review_for_consumer if it exists with passed in id 
-    deleted_review = review_for_consumer_collection.find_one_and_delete({ "_id": ObjectId(id) })
+    # deleting review_for_producer if it exists with passed in id 
+    deleted_review = review_for_producer_collection.find_one_and_delete({ "_id": ObjectId(id) })
     if deleted_review is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, 
-            detail="Review for Consumer to be deleted was not found with id " + id
+            detail="Review for Producer to be deleted was not found with id " + id
         )
     
     return Response(status_code=status.HTTP_204_NO_CONTENT)
