@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import List
 from enum import Enum
 
-from app.models.food_item_model import food_item_base
+from models.food_item_model import food_item_base
 
 class status_enum(str, Enum):
     pending = "pending"
